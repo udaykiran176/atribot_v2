@@ -16,7 +16,7 @@ const MobileNavItem = ({ label, iconSrc, href, isActive }: MobileNavItemProps) =
     <Link 
       href={href} 
       className={`flex flex-col items-center justify-center flex-1 py-2 transition-colors ${
-        isActive ? 'text-green-500' : 'text-gray-600 hover:text-green-500'
+        isActive ? 'text-blue-500' : 'text-gray-600 hover:text-blue-500'
       }`}
     >
       <Image
@@ -31,11 +31,7 @@ const MobileNavItem = ({ label, iconSrc, href, isActive }: MobileNavItemProps) =
   );
 };
 
-type MobileBottomNavProps = {
-  userGender?: string;
-};
-
-export const MobileBottomNav = ({ userGender }: MobileBottomNavProps) => {
+export const MobileBottomNav = () => {
   const pathname = usePathname();
 
   const navItems = [
@@ -44,11 +40,6 @@ export const MobileBottomNav = ({ userGender }: MobileBottomNavProps) => {
     { label: "Leaderboard", href: "/leaderboard", iconSrc: "/sidebar_icon/leaderboard.png" },
     { label: "Quests", href: "/quests", iconSrc: "/sidebar_icon/quests.png" },
     { label: "Shop", href: "/shop", iconSrc: "/sidebar_icon/shop.png" },
-    { 
-      label: "Profile", 
-      href: "/profile", 
-      iconSrc: userGender === 'female' ? "/sidebar_icon/girl.png" : "/sidebar_icon/boy.png"
-    },
   ];
 
   return (
