@@ -8,7 +8,7 @@ import { user } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 export default async function OnboardingPage() {
-  const headersList = headers();
+  const headersList = await headers();
   const session = await auth.api.getSession({
     headers: headersList,
   });
