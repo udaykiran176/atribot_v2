@@ -22,6 +22,20 @@
       "when": 1755074264585,
       "tag": "0002_quick_namorita",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1755080989514,
+      "tag": "0003_material_vision",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1755101240085,
+      "tag": "0004_unique_tyrannus",
+      "breakpoints": true
     }
   ]
 }

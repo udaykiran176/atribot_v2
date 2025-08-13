@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { getCurrentUser } from '@/server/users';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Loader } from 'lucide-react';
 
 const getPageTitle = (pathname: string) => {
   if (!pathname) return 'AtriBOT';
@@ -60,21 +61,29 @@ export const MobileHeader = () => {
         href="/profile" 
         className="flex items-center gap-2 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
       >
-        <div className="flex flex-col items-left">
-          {!isLoading && childName && (
-            <span className="text-slate-700 font-medium text-sm">
-              {childName}
-            </span>
-          )}
-        </div>
-        {childGender && (
-          <Image
-            src={childGender === 'female' ? "/sidebar_icon/girl.png" : "/sidebar_icon/boy.png"}
-            alt={childGender === 'female' ? "Girl" : "Boy"}
-            height={30}
-            width={30}
-            className="rounded-full border-1 border-blue-200"
-          />
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <div className="h-[30px] w-[30px] rounded-full border-1 border-blue-200 flex items-center justify-center">
+              <Loader className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col items-left">
+              <span className="text-slate-700 font-medium text-sm">
+                {childName || 'Guest'}
+              </span>
+            </div>
+            {childGender && (
+              <Image
+                src={childGender === 'female' ? "/sidebar_icon/girl.png" : "/sidebar_icon/boy.png"}
+                alt={childGender === 'female' ? "Girl" : "Boy"}
+                height={30}
+                width={30}
+                className="rounded-full border-1 border-blue-200"
+              />
+            )}
+          </>
         )}
       </Link>
     </nav>

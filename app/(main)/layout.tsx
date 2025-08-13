@@ -11,7 +11,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       <MobileBottomNav />
       <Sidebar className="hidden lg:flex" />
       <main className="h-full pt-[50px] pb-[70px] lg:pl-[256px] lg:pt-0 lg:pb-0">
-        <div className="mx-auto h-full max-w-[1056px] pt-6">{children}</div>
+        <div className="mx-auto h-full max-w-[1056px] pt-0 sm:pt-6">{children}</div>
       </main>
     </>
   );
