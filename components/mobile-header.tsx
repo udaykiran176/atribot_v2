@@ -31,7 +31,6 @@ export const MobileHeader = () => {
   const pageTitle = getPageTitle(pathname);
   const [childName, setChildName] = useState<string | null>(null);
   const [childGender, setChildGender] = useState<string | null>(null);
-  const [childLevel, setChildLevel] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -41,7 +40,6 @@ export const MobileHeader = () => {
         if (currentUser?.childName) {
           setChildName(currentUser.childName);
           setChildGender(currentUser.childGender);
-          setChildLevel(currentUser.childLevel);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -66,11 +64,6 @@ export const MobileHeader = () => {
           {!isLoading && childName && (
             <span className="text-slate-700 font-medium text-sm">
               {childName}
-            </span>
-          )}
-          {!isLoading && childLevel && (
-            <span className="text-slate-500 text-xs">
-              Level {childLevel}
             </span>
           )}
         </div>

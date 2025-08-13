@@ -15,6 +15,13 @@
       "when": 1755073140205,
       "tag": "0001_true_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1755074264585,
+      "tag": "0002_quick_namorita",
+      "breakpoints": true
     }
   ]
 }
