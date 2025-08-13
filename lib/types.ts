@@ -14,6 +14,7 @@ export interface ExtendedUser {
   childGender?: string | null;
   childClass?: number | null;
   schoolname?: string | null;
+  childLevel?: number | null;
   phoneNumber?: string | null;
 }
 

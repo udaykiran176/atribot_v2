@@ -24,6 +24,7 @@ export const user = pgTable("user", {
    childGender: text('child_gender'),
    childClass: integer('child_class'),
    schoolname:text('schoolname'),
+   childLevel: integer('child_level'),
    //parent details
    phoneNumber: text('phone_number'),
 
