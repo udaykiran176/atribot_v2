@@ -33,7 +33,7 @@ export default function MarketingPage() {
       </div>
 
       <div className="flex flex-col items-center gap-y-8">
-        <h1 className="max-w-[480px] text-center text-xl font-bold text-neutral-600 lg:text-3xl">
+        <h1 className="max-w-[500px] text-center text-xl font-bold text-neutral-600 lg:text-3xl">
           Learn, build, and master robotics with AtriBOT.
         </h1>
 

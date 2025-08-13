@@ -14,10 +14,7 @@ const Banner = ({ hide, setHide }: BannerProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const hideBanner = localStorage.getItem(BANNER_KEY);
-
-    if (hideBanner) return;
-
+    // Always show banner on page load
     setHide(false);
 
     const handleScroll = () => {
@@ -26,8 +23,6 @@ const Banner = ({ hide, setHide }: BannerProps) => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleBannerClose = () => {

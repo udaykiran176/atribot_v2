@@ -45,12 +45,12 @@ export const Header = () => {
       <header
         className={cn(
           "h-20 w-full border-b-2 border-slate-200 px-4",
-          !hideBanner ? "mt-20 sm:mt-16 lg:mt-10" : "mt-0"
+          !hideBanner ? "mt-10 sm:mt-12 lg:mt-12" : "mt-0"
         )}
       >
         <div className="mx-auto flex h-full items-center justify-between lg:max-w-screen-lg">
           <Link href="/" className="flex items-center gap-x-3 pb-7 pl-4 pt-8">
-            <Image src="/atribot_logo.svg" alt="Mascot" height={40} width={40} />
+            <Image src="/atribot_logo.svg" alt="atribot logo" height={40} width={40} />
 
             <h1 className="text-2xl font-extrabold tracking-wide text-blue-500">
               Atri<span className="text-black">BOT</span>
