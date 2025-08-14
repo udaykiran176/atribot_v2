@@ -1,9 +1,15 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { getUserProgress } from "@/db/queries";
+import { getUserProgress, getCourseTopicsWithChallenges } from "@/db/queries";
 import { headers } from "next/headers";
+import { StickyWrapper } from "@/components/sticky-wrapper";
+import { FeedWrapper } from "@/components/feed-wrapper";
+import { UserProgress } from "@/components/user-progress";
+import LearnClient from "./learn-client";
+
 
 export default async function LearnPage() {
+  
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -20,43 +26,32 @@ export default async function LearnPage() {
       return redirect("/courses");
     }
 
-    // If we have the course data, display it
+    // If we have the course data, display it along with topics/challenges JSON
     if (userProgress.activeCourse) {
+      const toc = await getCourseTopicsWithChallenges(userProgress.activeCourseId);
       return (
-        <div className="flex flex-col p-6">
-          <h1 className="text-2xl font-bold mb-4">
-            Learning: {userProgress.activeCourse.title}
-          </h1>
-          <div className="bg-gray-100 p-6 rounded-lg">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                {userProgress.activeCourse.imageSrc ? (
-                  <img 
-                    src={userProgress.activeCourse.imageSrc} 
-                    alt={userProgress.activeCourse.title}
-                    className="w-12 h-12 object-contain"
-                  />
-                ) : (
-                  <span className="text-gray-500">📚</span>
-                )}
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold">{userProgress.activeCourse.title}</h2>
-                <p className="text-gray-600">In Progress</p>
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-row-reverse gap-[48px] px-6">
+          <StickyWrapper>
+          <UserProgress
+          activeCourse={userProgress.activeCourse}
+          //hearts={userProgress.hearts}
+          streak={userProgress.streak}
+          points={userProgress.points}
+          
+         // hasActiveSubscription={isPro}
+        />
+          </StickyWrapper>
+
+          <FeedWrapper>
+            <LearnClient
+              courseTitle={userProgress.activeCourse.title}
+              topics={toc as any}
+            />
+          </FeedWrapper>
+  
         </div>
       );
     }
-    
-    // If we don't have course data but have an ID, show a loading state
-    return (
-      <div className="flex flex-col p-6">
-        <h1 className="text-2xl font-bold mb-4">Loading your course...</h1>
-      </div>
-    );
-    
   } catch (error) {
     console.error("Error in LearnPage:", error);
     return redirect("/courses");

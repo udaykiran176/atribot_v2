@@ -28,13 +28,13 @@ export const Card = ({
         disabled && "pointer-events-none opacity-50"
       )}
     >
-      <div className="absolute right-2 top-2 z-10">
-        {isActive && (
+      {isActive && (
+        <div className="absolute right-2 top-2 z-10">
           <div className="flex items-center justify-center rounded-md bg-blue-500 p-1.5">
             <Check className="h-4 w-4 stroke-[4] text-white" />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="relative mt-6 h-[140px] w-full">
         <Image

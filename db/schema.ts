@@ -73,8 +73,32 @@ export const courses = pgTable("courses", {
   imageSrc: text("image_src").notNull(),
 });
 
+export const topics = pgTable("topics", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  courseId: integer("course_id").notNull().references(() => courses.id, {
+    onDelete: "cascade",
+  }),
+  order: integer("order").notNull().default(0),
+});
+
+export const challenges = pgTable("challenges", {
+  id: serial("id").primaryKey(),
+  topicId: integer("topic_id").notNull().references(() => topics.id, {
+    onDelete: "cascade",
+  }),
+  type: text("type").notNull(), // 'video_lesson', 'swipe_cards', 'interactive_game', 'build_it_thought', 'quiz'
+  title: text("title").notNull(),
+  description: text("description"),
+  content: text("content"), // JSON content specific to challenge type
+  order: integer("order").notNull().default(0),
+  isCompleted: boolean("is_completed").notNull().default(false),
+});
+
 export const coursesRelations = relations(courses, ({ many }) => ({
   userProgress: many(userProgress),
+  topics: many(topics),
 }));
 
 export const userProgress = pgTable("user_progress", {
@@ -85,7 +109,49 @@ export const userProgress = pgTable("user_progress", {
     onDelete: "cascade",
   }),
   points: integer("points").notNull().default(0),
+  streak: integer("streak").notNull().default(0),
 });
+
+export const topicsRelations = relations(topics, ({ one, many }) => ({
+  course: one(courses, {
+    fields: [topics.courseId],
+    references: [courses.id],
+  }),
+  challenges: many(challenges),
+}));
+
+export const challengesRelations = relations(challenges, ({ one, many }) => ({
+  topic: one(topics, {
+    fields: [challenges.topicId],
+    references: [topics.id],
+  }),
+  userChallengeProgress: many(userChallengeProgress),
+}));
+
+export const userChallengeProgress = pgTable("user_challenge_progress", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id, {
+    onDelete: "cascade",
+  }),
+  challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
+    onDelete: "cascade",
+  }),
+  isCompleted: boolean("is_completed").notNull().default(false),
+  score: integer("score").default(0),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").$defaultFn(() => new Date()).notNull(),
+});
+
+export const userChallengeProgressRelations = relations(userChallengeProgress, ({ one }) => ({
+  user: one(user, {
+    fields: [userChallengeProgress.userId],
+    references: [user.id],
+  }),
+  challenge: one(challenges, {
+    fields: [userChallengeProgress.challengeId],
+    references: [challenges.id],
+  }),
+}));
 
 export const userProgressRelations = relations(userProgress, ({ one }) => ({
   activeCourse: one(courses, {
@@ -94,9 +160,16 @@ export const userProgressRelations = relations(userProgress, ({ one }) => ({
   }),
 }));
 
+
+
 export const schema = {
   user,
   session,
   account,
   verification,
+  courses,
+  topics,
+  challenges,
+  userProgress,
+  userChallengeProgress,
 };
