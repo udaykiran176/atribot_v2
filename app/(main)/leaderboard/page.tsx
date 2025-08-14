@@ -15,19 +15,18 @@ import {
 } from "@/db/queries";
 
 const LeaderboardPage = async () => {
-  const userProgressData = getUserProgress();
-  const userSubscriptionData = getUserSubscription();
-  const leaderboardData = getTopTenUsers();
+  try {
+    const [userProgress, userSubscription, leaderboard] = await Promise.all([
+      getUserProgress(),
+      getUserSubscription(),
+      getTopTenUsers().catch(() => []), // Return empty array if error
+    ]);
 
-  const [userProgress, userSubscription, leaderboard] = await Promise.all([
-    userProgressData,
-    userSubscriptionData,
-    leaderboardData,
-  ]);
+    if (!userProgress || !userProgress.activeCourse) {
+      redirect("/courses");
+    }
 
-  if (!userProgress || !userProgress.activeCourse) redirect("/courses");
-
-  const isPro = !!userSubscription?.isActive;
+    const isPro = !!userSubscription?.isActive;
 
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
@@ -59,7 +58,11 @@ const LeaderboardPage = async () => {
           </p>
 
           <Separator className="mb-4 h-0.5 rounded-full" />
-          {leaderboard.map((userProgress, i) => (
+          {(!leaderboard || leaderboard.length === 0) ? (
+            <div className="text-center text-muted-foreground py-4">
+              No leaderboard data available at the moment.
+            </div>
+          ) : leaderboard.map((userProgress, i) => (
             <div
               key={userProgress.userId}
               className="flex w-full items-center rounded-xl p-2 px-4 hover:bg-gray-200/50"
@@ -83,6 +86,11 @@ const LeaderboardPage = async () => {
       </FeedWrapper>
     </div>
   );
+  } catch (error) {
+    console.error('Error in LeaderboardPage:', error);
+    // Optionally redirect to an error page or show a user-friendly message
+    redirect('/error');
+  }
 };
 
 export default LeaderboardPage;
