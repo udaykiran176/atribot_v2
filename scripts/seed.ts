@@ -13,7 +13,8 @@ const seed = async () => {
     await db.insert(courses).values([
       { title: "Build your own circuit", imageSrc: "/course/level-1.png" },
       { title: "introduction to sensors", imageSrc: "/course/level-2.png" },
-      { title: "step into coding", imageSrc: "/course/level-3.png" },
+      { title: "wire & wireless bot", imageSrc: "/course/level-3.png" },
+      { title: "step into coding", imageSrc: "/course/level-4.png" },
     ]);
     console.log("Courses seeded successfully");
   } catch (error) {
