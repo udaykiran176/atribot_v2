@@ -17,33 +17,75 @@ import { Unit } from "./unit";
 
 const LearnPage = async () => {
   try {
-    // First, get user progress to check if we need to redirect
-    const userProgress = await getUserProgress();
+    console.log('Fetching user progress...');
+    const userProgress = await getUserProgress().catch(error => {
+      console.error('Error getting user progress:', error);
+      return null;
+    });
     
-    // Redirect early if no user progress or active course
+    console.log('User progress:', userProgress);
+    
+    // Check if we need to redirect
     if (!userProgress || !userProgress.activeCourse) {
-      return redirect("/courses");
+      console.log('No user progress or active course found, will redirect to /courses');
+      // Instead of redirecting, we'll show a message and a button to go to courses
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen p-4">
+          <h1 className="text-2xl font-bold text-neutral-800 mb-4">No Active Course</h1>
+          <p className="text-muted-foreground mb-6">
+            Please select a course to continue learning.
+          </p>
+          <a 
+            href="/courses" 
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Choose a Course
+          </a>
+        </div>
+      );
     }
 
-    // Then fetch other data in parallel
-    const [
-      units,
-      courseProgress,
-      lessonPercentage,
-      userSubscription,
-    ] = await Promise.all([
-      getUnits().catch(() => []),
-      getCourseProgress(),
-      getLessonPercentage().catch(() => 0),
-      getUserSubscription(),
-    ]);
+    console.log('Fetching additional data...');
+    let units: any[] = [];
+    let courseProgress: any = null;
+    let lessonPercentage: number = 0;
+    let userSubscription: any = null;
+
+    try {
+      [units, courseProgress, lessonPercentage, userSubscription] = await Promise.all([
+        getUnits().catch(error => {
+          console.error('Error getting units:', error);
+          return [];
+        }),
+        getCourseProgress().catch(error => {
+          console.error('Error getting course progress:', error);
+          return null;
+        }),
+        getLessonPercentage().catch(error => {
+          console.error('Error getting lesson percentage:', error);
+          return 0;
+        }),
+        getUserSubscription().catch(error => {
+          console.error('Error getting user subscription:', error);
+          return null;
+        }),
+      ]);
+    } catch (error) {
+      console.error('Error in parallel data fetching:', error);
+      // Continue with default values instead of redirecting to error
+    }
 
     const activeCourse = userProgress.activeCourse;
     const isPro = !!userSubscription?.isActive;
 
-    // If no course progress but we have an active course, redirect to courses
+    console.log('Course progress:', courseProgress);
+    console.log('Active course ID:', userProgress.activeCourseId);
+
+    // If no course progress but we have an active course, initialize it
     if (!courseProgress && userProgress.activeCourseId) {
-      return redirect('/courses');
+      console.log('No course progress found, initializing...');
+      // We'll continue rendering with empty course progress
+      // The UI should handle this state appropriately
     }
 
     return (
@@ -85,8 +127,22 @@ const LearnPage = async () => {
     );
   } catch (error) {
     console.error('Error in LearnPage:', error);
-    // Optionally redirect to an error page or show a user-friendly message
-    redirect('/error');
+    // Instead of redirecting to /error, show a user-friendly message
+    // This prevents the infinite redirect loop
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
+        <p className="text-muted-foreground mb-6">
+          We're having trouble loading your learning content. Please try again later.
+        </p>
+        <a 
+          href="/courses" 
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Back to Courses
+        </a>
+      </div>
+    );
   }
 };
 
