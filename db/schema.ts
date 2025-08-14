@@ -9,7 +9,6 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 
-import { MAX_HEARTS } from "@/constants";
 
 export const user = pgTable("user", {
   id: text('id').primaryKey(),
@@ -18,19 +17,24 @@ export const user = pgTable("user", {
   emailVerified: boolean('email_verified').$defaultFn(() => false).notNull(),
   image: text('image'),
 
-   //onboarding details
-   onboardingCompleted: boolean('onboarding_completed').$defaultFn(() => false).notNull(),
-   //child details
-   childName: text('child_name'),
-   childDob: timestamp('child_dob'),
-   childGender: text('child_gender'),
-   childClass: integer('child_class'),
-   schoolname:text('schoolname'),
-   //parent details
-   phoneNumber: text('phone_number'),
+  // onboarding details
+  onboardingCompleted: boolean('onboarding_completed').$defaultFn(() => false).notNull(),
+  // child details
+  childName: text('child_name'),
+  childDob: timestamp('child_dob'),
+  childGender: text('child_gender'),
+  childClass: integer('child_class'),
+  schoolname: text('schoolname'),
+  // parent details
+  phoneNumber: text('phone_number'),
 
-  createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
-  updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull()
+  // robotics platform specific
+  xp: integer('xp').default(0).notNull(),
+  kitUnlocked: boolean('kit_unlocked').default(false).notNull(),
+  activeCourseId: integer('active_course_id').references(() => courses.id, { onDelete: 'set null' }),
+
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const session = pgTable("session", {
@@ -66,154 +70,85 @@ export const verification = pgTable("verification", {
   identifier: text('identifier').notNull(),
   value: text('value').notNull(),
   expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()),
-  updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date())
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
 });
 
 export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
+  description: text("description"),
   imageSrc: text("image_src").notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const coursesRelations = relations(courses, ({ many }) => ({
-  userProgress: many(userProgress),
-  units: many(units),
+  topics: many(topics),
 }));
 
-export const units = pgTable("units", {
+export const topics = pgTable("topics", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull(), // Unit 1
-  description: text("description").notNull(), // Learn the basics of spanish
-  courseId: integer("course_id")
-    .references(() => courses.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  order: integer("order").notNull(),
-});
-
-export const unitsRelations = relations(units, ({ many, one }) => ({
-  course: one(courses, {
-    fields: [units.courseId],
-    references: [courses.id],
-  }),
-  lessons: many(lessons),
-}));
-
-export const lessons = pgTable("lessons", {
-  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull().references(() => courses.id, { onDelete: 'cascade' }),
   title: text("title").notNull(),
-  unitId: integer("unit_id")
-    .references(() => units.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  order: integer("order").notNull(),
+  description: text("description"),
+  freeTrial: boolean("free_trial").default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export const lessonsRelations = relations(lessons, ({ one, many }) => ({
-  unit: one(units, {
-    fields: [lessons.unitId],
-    references: [units.id],
-  }),
+export const topicsRelations = relations(topics, ({ one, many }) => ({
+  course: one(courses, { fields: [topics.courseId], references: [courses.id] }),
   challenges: many(challenges),
 }));
 
-export const challengesEnum = pgEnum("type", ["SELECT", "ASSIST"]);
+export const challengeTypeEnum = pgEnum('challenge_type', ['video', 'slide', 'game', 'build', 'mcq']);
 
 export const challenges = pgTable("challenges", {
   id: serial("id").primaryKey(),
-  lessonId: integer("lesson_id")
-    .references(() => lessons.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  type: challengesEnum("type").notNull(),
-  question: text("question").notNull(),
-  order: integer("order").notNull(),
+  topicId: integer("topic_id").notNull().references(() => topics.id, { onDelete: 'cascade' }),
+  type: challengeTypeEnum('type').notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  contentUrl: text("content_url"),
+  // For build-type challenges to indicate looped mp4 animations
+  isLoopAnimation: boolean("is_loop_animation").default(false).notNull(),
+  xp: integer("xp").notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const challengesRelations = relations(challenges, ({ one, many }) => ({
-  lesson: one(lessons, {
-    fields: [challenges.lessonId],
-    references: [lessons.id],
-  }),
-  challengeOptions: many(challengeOptions),
-  challengeProgress: many(challengeProgress),
+  topic: one(topics, { fields: [challenges.topicId], references: [topics.id] }),
+  userChallenges: many(userChallenges),
+  mcqOptions: many(mcqOptions),
 }));
 
-export const challengeOptions = pgTable("challenge_options", {
+export const userChallenges = pgTable("user_challenges", {
   id: serial("id").primaryKey(),
-  challengeId: integer("challenge_id")
-    .references(() => challenges.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: 'cascade' }),
+  challengeId: integer("challenge_id").notNull().references(() => challenges.id, { onDelete: 'cascade' }),
+  completed: boolean("completed").default(false).notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
+export const userChallengesRelations = relations(userChallenges, ({ one }) => ({
+  user: one(user, { fields: [userChallenges.userId], references: [user.id] }),
+  challenge: one(challenges, { fields: [userChallenges.challengeId], references: [challenges.id] }),
+}));
+
+// MCQ Options for multiple choice questions
+export const mcqOptions = pgTable("mcq_options", {
+  id: serial("id").primaryKey(),
+  challengeId: integer("challenge_id").notNull().references(() => challenges.id, { onDelete: 'cascade' }),
   text: text("text").notNull(),
-  correct: boolean("correct").notNull(),
-  imageSrc: text("image_src"),
-  audioSrc: text("audio_src"),
+  isCorrect: boolean("is_correct").default(false).notNull(),
+  sortOrder: integer("sort_order"),
 });
 
-export const challengeOptionsRelations = relations(
-  challengeOptions,
-  ({ one }) => ({
-    challenge: one(challenges, {
-      fields: [challengeOptions.challengeId],
-      references: [challenges.id],
-    }),
-  })
-);
-
-export const challengeProgress = pgTable("challenge_progress", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  challengeId: integer("challenge_id")
-    .references(() => challenges.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  completed: boolean("completed").notNull().default(false),
-});
-
-export const challengeProgressRelations = relations(
-  challengeProgress,
-  ({ one }) => ({
-    challenge: one(challenges, {
-      fields: [challengeProgress.challengeId],
-      references: [challenges.id],
-    }),
-  })
-);
-
-export const userProgress = pgTable("user_progress", {
-  userId: text("user_id").primaryKey(),
-  userName: text("user_name").notNull().default("User"),
-  userImageSrc: text("user_image_src").notNull().default("/mascot.svg"),
-  activeCourseId: integer("active_course_id").references(() => courses.id, {
-    onDelete: "cascade",
-  }),
-  hearts: integer("hearts").notNull().default(MAX_HEARTS),
-  points: integer("points").notNull().default(0),
-});
-
-export const userProgressRelations = relations(userProgress, ({ one }) => ({
-  activeCourse: one(courses, {
-    fields: [userProgress.activeCourseId],
-    references: [courses.id],
-  }),
+export const mcqOptionsRelations = relations(mcqOptions, ({ one }) => ({
+  challenge: one(challenges, { fields: [mcqOptions.challengeId], references: [challenges.id] }),
 }));
-
-export const userSubscription = pgTable("user_subscription", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull().unique(),
-  stripeCustomerId: text("stripe_customer_id").notNull().unique(),
-  stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(),
-  stripePriceId: text("stripe_price_id").notNull(),
-  stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
-});
-
 
 
 export const schema = {
@@ -223,17 +158,13 @@ export const schema = {
   verification,
   courses,
   coursesRelations,
-  units,
-  unitsRelations,
-  lessons,
-  lessonsRelations,
+  topics,
+  topicsRelations,
+  challengeTypeEnum,
   challenges,
   challengesRelations,
-  challengeOptions,
-  challengeOptionsRelations,
-  challengeProgress,
-  challengeProgressRelations,
-  userProgress,
-  userProgressRelations,
-  userSubscription,
+  userChallenges,
+  userChallengesRelations,
+  mcqOptions,
+  mcqOptionsRelations,
 };

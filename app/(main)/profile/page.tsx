@@ -31,10 +31,10 @@ export default async function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen py-2 sm:py-4">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 hidden sm:block">Profile</h1>
           <p className="text-gray-600">Welcome back, {currentUser.name}!</p>
         </div>
 

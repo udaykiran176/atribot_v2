@@ -36,6 +36,13 @@
       "when": 1755101240085,
       "tag": "0004_unique_tyrannus",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1755149961040,
+      "tag": "0005_fresh_proteus",
+      "breakpoints": true
     }
   ]
 }
