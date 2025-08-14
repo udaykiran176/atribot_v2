@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PlayCircle, SquareStack, Gamepad2, Hammer, CircleHelp, Check } from "lucide-react";
 import FixedHeader from "./fixed-header";
 
 type Challenge = {
@@ -10,6 +11,7 @@ type Challenge = {
   description: string | null;
   order: number | null;
   content: string | null;
+  isCompleted?: boolean | null;
 };
 
 export type Topic = {
@@ -63,6 +65,25 @@ export default function LearnClient({ courseTitle, topics }: Props) {
 
   const currentTopic = sortedTopics[activeIndex] ?? sortedTopics[0];
 
+  const typeIcon = (type?: string) => {
+    const t = (type || "").toLowerCase();
+    if (t.includes("video")) return PlayCircle;
+    if (t.includes("swipe") || t.includes("card")) return SquareStack;
+    if (t.includes("game")) return Gamepad2;
+    if (t.includes("build")) return Hammer;
+    if (t.includes("quiz") || t.includes("test")) return CircleHelp;
+    return CircleHelp;
+  };
+
+  const getStateForChallenges = (challenges: Challenge[]) => {
+    const sorted = [...(challenges || [])]
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const firstIncompleteIdx = sorted.findIndex((c) => !c.isCompleted);
+    const activeIdx = firstIncompleteIdx === -1 ? sorted.length - 1 : firstIncompleteIdx;
+    return { sorted, activeIdx };
+  };
+
   return (
     <div className="w-full">
       <FixedHeader
@@ -77,24 +98,66 @@ export default function LearnClient({ courseTitle, topics }: Props) {
             id={`topic-${t.id}`}
             data-topic-index={i}
             ref={setRef}
-            className="scroll-mt-24 rounded-xl border border-gray-200 p-6 shadow-sm bg-white min-h-[60vh]"
           >
-            <h2 className="text-xl font-semibold mb-1">{t.title}</h2>
-            {t.description && (
-              <p className="text-gray-600 mb-4">{t.description}</p>
-            )}
+            <div className="flex items-center gap-3 my-2 text-gray-400">
+              <span className="h-px bg-gray-200 flex-1"></span>
+              <h2 className="text-sm font-semibold tracking-wide uppercase whitespace-nowrap text-gray-400">
+                {t.title}
+              </h2>
+              <span className="h-px bg-gray-200 flex-1"></span>
+            </div>
 
-            <ol className="list-decimal ml-5 space-y-2">
-              {t.challenges
-                ?.slice()
-                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                .map((c) => (
-                  <li key={c.id} className="text-sm">
-                    <span className="font-medium capitalize">{c.type?.replaceAll("_", " ")}</span>
-                    {c.title ? ` — ${c.title}` : null}
-                  </li>
-                ))}
-            </ol>
+            {(() => {
+              const { sorted, activeIdx } = getStateForChallenges(t.challenges || []);
+              return (
+                <div className="flex flex-col items-center gap-6 py-4 relative w-full">
+                  {sorted.map((c, idx) => {
+                    const Icon = typeIcon(c.type);
+                    const isCompleted = Boolean(c.isCompleted);
+                    const isCurrent = !isCompleted && idx === activeIdx;
+                    const locked = !isCompleted && idx > activeIdx;
+
+                    // Duolingo-like staggered indentation cycle
+                    const cycleLength = 8;
+                    const cycleIndex = idx % cycleLength;
+                    let indentationLevel: number;
+                    if (cycleIndex <= 2) indentationLevel = cycleIndex;
+                    else if (cycleIndex <= 4) indentationLevel = 4 - cycleIndex;
+                    else if (cycleIndex <= 6) indentationLevel = 4 - cycleIndex;
+                    else indentationLevel = cycleIndex - 8;
+                    const rightPosition = indentationLevel * 40; // px
+
+                    const base = "h-[70px] w-[70px] rounded-full border-b-8 flex items-center justify-center shadow-sm";
+                    const state = locked
+                      ? "bg-neutral-200 border-b-neutral-300 text-neutral-400"
+                      : isCompleted
+                      ? "bg-emerald-500 border-b-emerald-700 text-emerald-50"
+                      : "bg-blue-500 border-b-blue-700 text-blue-50";
+
+                    return (
+                      <div key={c.id} className="relative w-full select-none" style={{ marginTop: isCurrent && idx === 0 ? 60 : 0 }}>
+                        <div className="relative mx-auto flex w-full justify-center">
+                          <div className="relative flex flex-col items-center" style={{ transform: `translateX(${rightPosition}px)` }}>
+                            {isCurrent && (
+                              <div className="absolute -top-6 left-1/2 -translate-x-1/2 rounded-xl border bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-blue-600 shadow animate-bounce">
+                                Start
+                              </div>
+                            )}
+                            <div className={`${base} ${state}`} aria-disabled={locked}>
+                              {isCompleted ? (
+                                <Check className="h-10 w-10" />
+                              ) : (
+                                <Icon className="h-10 w-10" />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         ))}
       </div>

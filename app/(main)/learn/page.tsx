@@ -7,7 +7,6 @@ import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import LearnClient from "./learn-client";
 
-
 export default async function LearnPage() {
   
   try {
@@ -43,10 +42,7 @@ export default async function LearnPage() {
           </StickyWrapper>
 
           <FeedWrapper>
-            <LearnClient
-              courseTitle={userProgress.activeCourse.title}
-              topics={toc as any}
-            />
+            <LearnClient courseTitle={userProgress.activeCourse.title} topics={toc as any} />
           </FeedWrapper>
   
         </div>
