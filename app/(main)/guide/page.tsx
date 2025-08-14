@@ -1,4 +1,3 @@
-
-export default function Guid() {
-    return <div>Guid</div>;
+export default function GuidePage() {
+    return <div className="flex flex-col items-center justify-center h-full">Guide</div>;
 }

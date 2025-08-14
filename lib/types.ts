@@ -15,10 +15,6 @@ export interface ExtendedUser {
   childClass?: number | null;
   schoolname?: string | null;
   phoneNumber?: string | null;
-  // robotics-specific
-  xp?: number | null;
-  kitUnlocked?: boolean | null;
-  activeCourseId?: number | null;
 }
 
 export interface ExtendedSession extends Omit<Session, 'user'> {

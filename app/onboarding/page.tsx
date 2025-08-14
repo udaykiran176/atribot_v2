@@ -33,7 +33,6 @@ export default async function OnboardingPage() {
 
   return (
     <div className="min-h-screen">
-          
           <OnboardingForm userId={session.user.id} />
      </div>
   );

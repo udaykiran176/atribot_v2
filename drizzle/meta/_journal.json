@@ -43,6 +43,13 @@
       "when": 1755149961040,
       "tag": "0005_fresh_proteus",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1755152976830,
+      "tag": "0006_green_ben_urich",
+      "breakpoints": true
     }
   ]
 }
