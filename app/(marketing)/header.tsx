@@ -5,10 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { UserIcon, Loader } from "lucide-react";
 
-import { getCurrentUser } from "@/server/users";
 import Banner from "@/components/banner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
 
 type User = {
   id: string;
@@ -20,23 +20,7 @@ type User = {
 
 export const Header = () => {
   const [hideBanner, setHideBanner] = useState(true);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const { currentUser } = await getCurrentUser();
-        setCurrentUser(currentUser);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  const { data: session, isPending } = authClient.useSession();
 
   return (
     <>
@@ -58,24 +42,22 @@ export const Header = () => {
           </Link>
 
           <div className="flex items-center gap-4">
-        {loading ? (
-          <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
-        ) : currentUser ? (
-          <div className="flex items-center gap-4">
-            <Link href="/profile">
-                <Button>
+            {isPending ? (
+              <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
+            ) : session?.user ? (
+              <div className="flex items-center gap-4">
+                <Link href="/profile">
+                  <Button>
                     <UserIcon className="size-4" /> Profile
-                </Button>
-            </Link>
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <Link href="/login">
+                <Button>Sign in</Button>
+              </Link>
+            )}
           </div>
-        ) : (
-          <Link href="/login">
-            <Button>
-                Sign in
-            </Button>
-          </Link>
-        )}
-      </div>
         </div>
       </header>
     </>

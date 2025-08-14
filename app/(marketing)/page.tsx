@@ -1,30 +1,11 @@
-"use client";
-import { useState, useEffect } from "react";
-import { getCurrentUser } from "@/server/users";
 import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { getCurrentUser } from "@/server/users";
 
-export default function MarketingPage() {
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const { currentUser } = await getCurrentUser();
-        setCurrentUser(currentUser);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+export default async function MarketingPage() {
+  const { currentUser } = await getCurrentUser();
 
   return (
     <div className="mx-auto flex w-full max-w-[988px] flex-1 flex-col items-center justify-center gap-10 p-8 lg:flex-row-reverse">
@@ -34,28 +15,21 @@ export default function MarketingPage() {
         </h1>
 
         <div className="flex w-full max-w-[330px] flex-col items-center gap-y-3">
-          {loading ? (
-            <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
-          ) : currentUser ? (
+          {currentUser ? (
             <Button size="lg" variant="secondary" className="w-full" asChild>
               <Link href="/learn">Continue Learning</Link>
             </Button>
           ) : (
             <>
-            <Button size="lg" variant="primary" className="w-full" asChild>
-              <Link href="/login">
-                Get Started
-              </Link>
-            </Button>
+              <Button size="lg" variant="primary" className="w-full" asChild>
+                <Link href="/login">Get Started</Link>
+              </Button>
 
-            <Button size="lg" variant="outline" className="w-full" asChild>
-              <Link href="/login">
-                I already have an account
-              </Link>
-            </Button>
+              <Button size="lg" variant="outline" className="w-full" asChild>
+                <Link href="/login">I already have an account</Link>
+              </Button>
             </>
           )}
-
         </div>
       </div>
       <div className="relative w-full max-w-[400px] h-[300px] lg:h-[450px]">

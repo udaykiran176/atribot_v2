@@ -2,7 +2,6 @@
 "use client";
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getCurrentUser } from '@/server/users';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Loader } from 'lucide-react';
@@ -37,10 +36,13 @@ export const MobileHeader = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { currentUser } = await getCurrentUser();
-        if (currentUser?.childName) {
-          setChildName(currentUser.childName);
-          setChildGender(currentUser.childGender);
+        const res = await fetch('/api/user/child-info');
+        if (res.ok) {
+          const data = await res.json() as { childName?: string | null; childGender?: string | null };
+          if (data?.childName) {
+            setChildName(data.childName);
+            setChildGender(data.childGender ?? null);
+          }
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
