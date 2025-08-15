@@ -33,37 +33,50 @@ export default function LearnClient({ courseTitle, topics }: Props) {
     [topics]
   );
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeTopicId, setActiveTopicId] = useState<number>(sortedTopics[0]?.id || 0);
 
-  const sectionRefs = useRef<HTMLDivElement[]>([]);
-  sectionRefs.current = [];
-  const setRef = (el: HTMLDivElement | null) => {
-    if (el && !sectionRefs.current.includes(el)) sectionRefs.current.push(el);
+  const sectionRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  
+  const setRef = (topicId: number) => (el: HTMLDivElement | null) => {
+    if (el) {
+      sectionRefs.current.set(topicId, el);
+    } else {
+      sectionRefs.current.delete(topicId);
+    }
   };
 
   useEffect(() => {
-    if (!sectionRefs.current.length) return;
+    if (sectionRefs.current.size === 0) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        // Find the most visible section
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (!visible) return;
-        const idxAttr = visible.target.getAttribute("data-topic-index");
-        if (!idxAttr) return;
-        const idx = parseInt(idxAttr, 10);
-        if (!Number.isNaN(idx)) setActiveIndex(idx);
+        entries.forEach((entry) => {
+          const topicId = parseInt(entry.target.getAttribute("data-topic-id") || "0", 10);
+          
+          // Simple logic: when a section becomes significantly visible (50%+), make it active
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            setActiveTopicId(topicId);
+          }
+        });
       },
-      { root: null, rootMargin: "0px 0px -30% 0px", threshold: [0.2, 0.35, 0.5, 0.65, 0.8] }
+      { 
+        root: null, 
+        rootMargin: "-25% 0px -25% 0px", // Trigger when section is well into viewport
+        threshold: [0.5] // Only trigger when section is at least 50% visible
+      }
     );
 
-    sectionRefs.current.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    // Observe all topic sections
+    sectionRefs.current.forEach((element) => {
+      observer.observe(element);
+    });
+    
+    return () => {
+      observer.disconnect();
+    };
   }, [topics]);
 
-  const currentTopic = sortedTopics[activeIndex] ?? sortedTopics[0];
+  const currentTopic = sortedTopics.find(t => t.id === activeTopicId) ?? sortedTopics[0];
 
   const typeIcon = (type?: string) => {
     const t = (type || "").toLowerCase();
@@ -96,8 +109,8 @@ export default function LearnClient({ courseTitle, topics }: Props) {
           <div
             key={t.id}
             id={`topic-${t.id}`}
-            data-topic-index={i}
-            ref={setRef}
+            data-topic-id={t.id}
+            ref={setRef(t.id)}
           >
             <div className="flex items-center gap-3 my-2 text-gray-400">
               <span className="h-px bg-gray-200 flex-1"></span>
