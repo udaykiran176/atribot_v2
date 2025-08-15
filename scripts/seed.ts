@@ -25,6 +25,15 @@ const seed = async () => {
     ]).returning();
     console.log("Courses seeded successfully");
 
+    // Define challenge types for reuse across courses
+    const challengeTypes = [
+      { type: "video_lesson", title: "Video Lesson", order: 1 },
+      { type: "swipe_cards", title: "Swipe Cards", order: 2 },
+      { type: "interactive_game", title: "Interactive Game", order: 3 },
+      { type: "build_it_thought", title: "Build It Thought", order: 4 },
+      { type: "quiz", title: "Quiz (MCQ)", order: 5 },
+    ];
+
     // Get the "Build your own circuit" course ID
     const buildCircuitCourse = insertedCourses.find(course => course.title === "Build your own circuit");
     
@@ -45,13 +54,6 @@ const seed = async () => {
 
       // Insert challenges for each topic
       console.log("Seeding challenges for each topic...");
-      const challengeTypes = [
-        { type: "video_lesson", title: "Video Lesson", order: 1 },
-        { type: "swipe_cards", title: "Swipe Cards", order: 2 },
-        { type: "interactive_game", title: "Interactive Game", order: 3 },
-        { type: "build_it_thought", title: "Build It Thought", order: 4 },
-        { type: "quiz", title: "Quiz (MCQ)", order: 5 },
-      ];
 
       const challengesData = [];
       for (const topic of insertedTopics) {
@@ -69,6 +71,44 @@ const seed = async () => {
 
       await db.insert(challenges).values(challengesData);
       console.log("Challenges seeded successfully");
+    }
+
+    // Get the "introduction to sensors" course ID
+    const sensorsCourse = insertedCourses.find(course => course.title === "introduction to sensors");
+    
+    if (sensorsCourse) {
+      console.log("Seeding topics for 'introduction to sensors' course...");
+      
+      // Insert topics for "introduction to sensors" course
+      const sensorsTopicsData = [
+        { title: "IR Sensor", description: "Learn about Infrared sensors and their applications", courseId: sensorsCourse.id, order: 1 },
+        { title: "LDR Sensor", description: "Understanding Light Dependent Resistor sensors", courseId: sensorsCourse.id, order: 2 },
+        { title: "Fire Sensor", description: "Working with fire detection sensors", courseId: sensorsCourse.id, order: 3 },
+        { title: "Soil Sensor", description: "Implementing soil moisture sensors", courseId: sensorsCourse.id, order: 4 },
+        { title: "Water Level Sensor", description: "Using water level detection sensors", courseId: sensorsCourse.id, order: 5 },
+      ];
+
+      const insertedSensorsTopics = await db.insert(topics).values(sensorsTopicsData).returning();
+      console.log("Sensors topics seeded successfully");
+
+      // Insert challenges for each sensor topic
+      console.log("Seeding challenges for each sensor topic...");
+      const sensorChallengesData = [];
+      for (const topic of insertedSensorsTopics) {
+        for (const challengeType of challengeTypes) {
+          sensorChallengesData.push({
+            topicId: topic.id,
+            type: challengeType.type,
+            title: `${topic.title} - ${challengeType.title}`,
+            description: `${challengeType.title} for ${topic.title}`,
+            content: JSON.stringify({ type: challengeType.type, topicTitle: topic.title }),
+            order: challengeType.order,
+          });
+        }
+      }
+
+      await db.insert(challenges).values(sensorChallengesData);
+      console.log("Sensor challenges seeded successfully");
     }
 
     console.log("Database seeded successfully!");

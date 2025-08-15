@@ -44,7 +44,6 @@ export default async function LearnPage() {
           <FeedWrapper>
             <LearnClient courseTitle={userProgress.activeCourse.title} topics={toc as any} />
           </FeedWrapper>
-  
         </div>
       );
     }
