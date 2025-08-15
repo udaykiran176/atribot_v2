@@ -17,12 +17,9 @@ export default function FixedHeader({
   // Color cycle: blue, red, pink, orange, yellow, purple, green
   const colors = [
     "bg-blue-500",    // 0 - Blue
-    "bg-red-400",     // 1 - Red
-    "bg-yellow-500",    // 2 - Pink
+    "bg-red-500",     // 1 - Red
+    "bg-green-500",    // 2 - green
     "bg-orange-500",  // 3 - Orange
-    "bg-green-500",  // 4 - Yellow
-    "bg-purple-500",  // 5 - Purple
-    "bg-pink-500",   // 6 - Green
   ];
   
   const currentColor = colors[topicIndex % colors.length];
@@ -51,7 +48,7 @@ export default function FixedHeader({
           </div>
         </div>
        </div>
-      </div>
+      </div> 
     </header>
   );
 }
