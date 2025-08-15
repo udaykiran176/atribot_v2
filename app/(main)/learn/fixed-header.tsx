@@ -17,12 +17,12 @@ export default function FixedHeader({
   // Color cycle: blue, red, pink, orange, yellow, purple, green
   const colors = [
     "bg-blue-500",    // 0 - Blue
-    "bg-red-500",     // 1 - Red
-    "bg-pink-500",    // 2 - Pink
+    "bg-red-400",     // 1 - Red
+    "bg-yellow-500",    // 2 - Pink
     "bg-orange-500",  // 3 - Orange
-    "bg-yellow-500",  // 4 - Yellow
+    "bg-green-500",  // 4 - Yellow
     "bg-purple-500",  // 5 - Purple
-    "bg-green-400",   // 6 - Green
+    "bg-pink-500",   // 6 - Green
   ];
   
   const currentColor = colors[topicIndex % colors.length];
