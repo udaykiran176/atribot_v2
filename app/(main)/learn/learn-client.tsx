@@ -48,23 +48,62 @@ export default function LearnClient({ courseTitle, topics }: Props) {
   useEffect(() => {
     if (sectionRefs.current.size === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const topicId = parseInt(entry.target.getAttribute("data-topic-id") || "0", 10);
-          
-          // Simple logic: when a section becomes significantly visible (50%+), make it active
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            setActiveTopicId(topicId);
+    const headerHeight = 64; // Height of the fixed header
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (ticking) return;
+      
+      ticking = true;
+      requestAnimationFrame(() => {
+        // Position just below the fixed header
+        const scrollPosition = window.scrollY + headerHeight;
+
+        // Choose the section whose top is closest to but not greater than scrollPosition
+        let candidateId: number | null = null;
+        let candidateTop = -Infinity;
+
+        sectionRefs.current.forEach((section, topicId) => {
+          const rect = section.getBoundingClientRect();
+          const sectionTop = rect.top + window.scrollY; // absolute top
+
+          // section has reached/passed the top threshold (below header)
+          if (sectionTop <= scrollPosition && sectionTop > candidateTop) {
+            candidateTop = sectionTop;
+            candidateId = topicId;
           }
         });
+
+        // Fallbacks
+        if (candidateId == null && sortedTopics[0]) {
+          // If nothing is above the top threshold, we're above the first section
+          candidateId = sortedTopics[0].id;
+        }
+
+        // Update state without relying on potentially stale closure
+        if (candidateId != null) {
+          const nextId = candidateId;
+          setActiveTopicId((prev) => (prev !== nextId ? nextId : prev));
+        }
+        
+        ticking = false;
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Use the scroll handler to determine the active section
+        handleScroll();
       },
       { 
         root: null, 
-        rootMargin: "-25% 0px -25% 0px", // Trigger when section is well into viewport
-        threshold: [0.5] // Only trigger when section is at least 50% visible
+        rootMargin: '0px 0px -70% 0px',
+        threshold: 0.1
       }
     );
+
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     // Observe all topic sections
     sectionRefs.current.forEach((element) => {
@@ -73,6 +112,7 @@ export default function LearnClient({ courseTitle, topics }: Props) {
     
     return () => {
       observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [topics]);
 

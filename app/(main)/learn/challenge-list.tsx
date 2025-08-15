@@ -51,15 +51,17 @@ export default function ChallengeList({ challenges, topicIndex }: ChallengeListP
           ? indentationLevel * 40  // Right positioning for even topics
           : indentationLevel * -40; // Left positioning for odd topics
         return (
-          <ChallengeButton
-            key={c.id}
-            challenge={c}
-            index={idx}
-            isCompleted={isCompleted}
-            isCurrent={isCurrent}
-            locked={locked}
-            rightPosition={rightPosition}
-          />
+        
+            <ChallengeButton
+              key={c.id}
+              challenge={c}
+              index={idx}
+              isCompleted={isCompleted}
+              isCurrent={isCurrent}
+              locked={locked}
+              rightPosition={rightPosition}
+            />
+         
         );
       })}
     </div>
