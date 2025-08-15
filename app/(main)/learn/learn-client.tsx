@@ -77,10 +77,15 @@ export default function LearnClient({ courseTitle, topics }: Props) {
   }, [topics]);
 
   const currentTopic = sortedTopics.find(t => t.id === activeTopicId) ?? sortedTopics[0];
+  const currentTopicIndex = sortedTopics.findIndex(t => t.id === activeTopicId);
 
   return (
     <div className="w-full">
-      <FixedHeader courseTitle={courseTitle} topicTitle={currentTopic?.title ?? ""}/>
+      <FixedHeader 
+        courseTitle={courseTitle} 
+        topicTitle={currentTopic?.title ?? ""} 
+        topicIndex={currentTopicIndex >= 0 ? currentTopicIndex : 0}
+      />
       <Toc topics={sortedTopics} setRef={setRef} />
     </div>
   );

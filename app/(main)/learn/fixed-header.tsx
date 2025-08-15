@@ -5,17 +5,31 @@ type Props = {
   courseTitle: string;
   topicTitle?: string;
   backHref?: string;
+  topicIndex?: number;
 };
 
 export default function FixedHeader({
   courseTitle,
   topicTitle,
   backHref = "/courses",
+  topicIndex = 0,
 }: Props) {
+  // Color cycle: blue, red, pink, orange, yellow, purple, green
+  const colors = [
+    "bg-blue-500",    // 0 - Blue
+    "bg-red-500",     // 1 - Red
+    "bg-pink-500",    // 2 - Pink
+    "bg-orange-500",  // 3 - Orange
+    "bg-yellow-500",  // 4 - Yellow
+    "bg-purple-500",  // 5 - Purple
+    "bg-green-500",   // 6 - Green
+  ];
+  
+  const currentColor = colors[topicIndex % colors.length];
   return (
     <header className="sticky top-12.5 left-0 right-0 z-50 sm:top-0">
       <div className="bg-white text-white pt-2 sm:pt-5 ">
-       <div className="w-full items-center justify-between rounded-xl bg-blue-500 p-2 text-white">
+       <div className={`w-full items-center justify-between rounded-xl ${currentColor} p-2 text-white`}>
         <div className="flex items-center gap-3 px-4 py-2">
           <Link
             href={backHref}
