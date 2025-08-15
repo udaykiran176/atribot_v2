@@ -35,12 +35,8 @@ export default function Toc({ topics, setRef }: TocProps) {
           ref={setRef(t.id)}
           className="relative pt-16 -mt-16 pb-8" // Add padding to account for fixed header
         >
-          <div className="relative z-10">
-            <header 
-              style={{
-                scrollMarginTop: '4rem' // Account for fixed header
-              }}
-            >
+          <div className="relative">
+            <header>
                <TopicName title={t.title} />
             </header>
             <div className="mt-4 px-4">
