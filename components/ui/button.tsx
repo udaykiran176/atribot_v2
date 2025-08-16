@@ -11,36 +11,48 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-white text-black border-slate-200 border-2 border-b-4 active:border-b-2 hover:bg-slate-100 text-slate-500",
+          "bg-white text-black border-slate-200 border-2 border-b-4 active:border-b-2 hover:bg-slate-100 text-slate-500 cursor-pointer",
         outline:
-          "bg-white text-black border-slate-200 border-2 border-b-4 active:border-b-2 hover:bg-slate-100 text-slate-500",
+          "bg-white text-black border-slate-200 border-2 border-b-4 active:border-b-2 hover:bg-slate-100 text-slate-500 cursor-pointer",
         // custom
         locked:
-          "bg-neutral-200 text-primary-foreground hover:bg-neutral-200/90 border-neutral-400 border-b-4 active:border-b-0",
+          "bg-neutral-200 text-primary-foreground hover:bg-neutral-200/90 border-neutral-400 border-b-4 active:border-b-0 cursor-pointer",
 
         primary:
-          "bg-blue-400 text-primary-foreground hover:bg-blue-400/90 border-blue-500 border-b-4 active:border-b-0",
-        primaryOutline: "bg-white text-blue-500 hover:bg-slate-100",
+          "bg-blue-400 text-primary-foreground hover:bg-blue-400/90 border-blue-500 border-b-4 active:border-b-0 cursor-pointer",
+        primaryOutline: "bg-white text-blue-500 hover:bg-slate-100 cursor-pointer",
 
         secondary:
-          "bg-blue-500 text-primary-foreground hover:bg-blue-500/90 border-blue-600 border-b-4 active:border-b-0",
-        secondaryOutline: "bg-white text-blue-500 hover:bg-slate-100",
+          "bg-blue-500 text-primary-foreground hover:bg-blue-500/90 border-blue-600 border-b-4 active:border-b-0 cursor-pointer",
+        secondaryOutline: "bg-white text-blue-500 hover:bg-slate-100 cursor-pointer",
 
         danger:
-          "bg-rose-500 text-primary-foreground hover:bg-rose-500/90 border-rose-600 border-b-4 active:border-b-0",
-        dangerOutline: "bg-white text-rose-500 hover:bg-slate-100",
-
-        super:
-          "bg-indigo-500 text-primary-foreground hover:bg-indigo-500/90 border-indigo-600 border-b-4 active:border-b-0",
-        superOutline: "bg-white text-indigo-500 hover:bg-slate-100",
-
+          "bg-rose-500 text-primary-foreground hover:bg-rose-500/90 border-rose-600 border-b-4 active:border-b-0 cursor-pointer",
+        dangerOutline: "bg-white text-rose-500 border-rose-200 border-2 hover:bg-rose-50 hover:text-rose-600 cursor-pointer",
+        
+        // Challenge type variants
+        video: "bg-pink-400 text-white border-pink-500 border-b-4 active:border-b-0 hover:bg-pink-500/90 cursor-pointer",
+        game: "bg-purple-400 text-white border-purple-500 border-b-4 active:border-b-0 hover:bg-purple-500/90 cursor-pointer",
+        build: "bg-yellow-400 text-white border-yellow-500 border-b-4 active:border-b-0 hover:bg-yellow-500/90 cursor-pointer",
+        quiz: "bg-green-400 text-white border-green-500 border-b-4 active:border-b-0 hover:bg-green-500/90 cursor-pointer",
+        defaultChallenge: "bg-blue-400 text-white border-blue-500 border-b-4 active:border-b-0 hover:bg-blue-500/90 cursor-pointer",
+        
+        super: ({
+          className = "",
+        }: {
+          className?: string;
+        }) =>
+          cn(
+            "col-span-2 border-0 bg-gradient-to-r from-indigo-400 via-cyan-400 to-sky-500 text-white text-base hover:from-indigo-600 hover:via-cyan-600 hover:to-sky-600",
+            className
+          ),
         ghost:
-          "bg-transparent text-slate-500 border-transparent border-0 hover:bg-slate-100",
+          "bg-transparent text-slate-500 border-transparent border-0 hover:bg-slate-100 cursor-pointer",
 
         sidebar:
-          "bg-transparent text-slate-500 border-2 border-transparent hover:bg-slate-100 transition-none",
+          "bg-transparent text-slate-500 border-2 border-transparent hover:bg-slate-100 transition-none cursor-pointer",
         sidebarOutline:
-          "bg-blue-500/15 text-blue-500 border-blue-400 border-2 hover:bg-blue-500/20 transition-none",
+          "bg-blue-500/15 text-blue-500 border-blue-400 border-2 hover:bg-blue-500/20 transition-none cursor-pointer",
       },
       size: {
         default: "h-11 px-4 py-2",

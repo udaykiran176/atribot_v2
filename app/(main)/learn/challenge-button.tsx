@@ -1,6 +1,8 @@
 "use client";
 
 import { PlayCircle, SquareStack, Gamepad2, Hammer, CircleHelp, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type Challenge = {
   id: number;
@@ -31,6 +33,16 @@ const typeIcon = (type?: string) => {
   return CircleHelp;
 };
 
+const getVariantForChallenge = (type?: string) => {
+  const t = (type || "").toLowerCase();
+  if (t.includes("video")) return "video";
+  if (t.includes("game")) return "game";
+  if (t.includes("build")) return "build";
+  if (t.includes("quiz") || t.includes("test")) return "quiz";
+  if (t.includes("swipe") || t.includes("card")) return "defaultChallenge";
+  return "defaultChallenge";
+};
+
 export default function ChallengeButton({
   challenge,
   index,
@@ -41,12 +53,9 @@ export default function ChallengeButton({
 }: ChallengeButtonProps) {
   const Icon = typeIcon(challenge.type);
 
-  const base = "h-[70px] w-[70px] rounded-full border-b-10 flex items-center justify-center shadow-sm";
-  const state = locked
-    ? "bg-neutral-200 border-b-neutral-300 text-neutral-400"
-    : isCompleted
-    ? "bg-emerald-500 border-b-emerald-700 text-emerald-50"
-    : "bg-blue-500 border-b-blue-700 text-blue-50";
+  const base = `relative h-[70px] w-[70px] border-b-8 shadow-[0_8px_0_rgba(0,0,0,0.2),0_8px_0_var(--path-level-color)] 
+    before:content-[''] before:absolute before:left-0 before:w-full before:z-[-1] before:bg-[linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.2)),linear-gradient(var(--path-level-color),var(--path-level-color))] 
+    before:h-2 before:top-[28.5px] after:content-[''] after:absolute after:left-0 after:w-full after:z-[-1]`;
 
   return (
     <div 
@@ -59,18 +68,40 @@ export default function ChallengeButton({
           className="relative flex flex-col items-center" 
           style={{ transform: `translateX(${rightPosition}px)` }}
         >
-          {isCurrent && (
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 rounded-xl border bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-blue-600 shadow animate-bounce">
-              Start
+          {isCurrent ? (
+            <div>
+              <div className="absolute -top-10 left-0 z-10 animate-bounce rounded-xl border-2 bg-white px-3 py-2.5 font-bold uppercase tracking-wide text-blue-500">
+                Start
+                <div
+                  className="absolute -bottom-2 left-1/2 h-0 w-0 -translate-x-1/2 transform border-x-8 border-t-8 border-x-transparent"
+                  aria-hidden
+                />
+              </div>
+              <Button
+                size="rounded"
+                variant={getVariantForChallenge(challenge.type)}
+                className={base}
+              >
+                {isCompleted ? (
+                  <Check className="h-10 w-5 fill-primary-foreground text-primary-foreground fill-none stroke-[4]" />
+                ) : (
+                  <Icon className="w-8 h-8" />
+                )}
+              </Button>
             </div>
+          ) : (
+            <Button
+              size="rounded"
+              variant={getVariantForChallenge(challenge.type)}
+              className={base}
+            >
+              {isCompleted ? (
+                <Check className="h-10 w-10 fill-primary-foreground text-primary-foreground fill-none stroke-[4]" />
+              ) : (
+                <Icon className="w-8 h-8" />
+              )}
+            </Button>
           )}
-          <div className={`${base} ${state}`} aria-disabled={locked}>
-            {isCompleted ? (
-              <Check className="h-10 w-10" />
-            ) : (
-              <Icon className="h-10 w-10" />
-            )}
-          </div>
         </div>
       </div>
     </div>
