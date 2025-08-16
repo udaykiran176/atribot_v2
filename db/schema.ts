@@ -80,6 +80,7 @@ export const topics = pgTable("topics", {
   courseId: integer("course_id").notNull().references(() => courses.id, {
     onDelete: "cascade",
   }),
+  imageSrc: text("image_src").notNull(),
   order: integer("order").notNull().default(0),
 });
 

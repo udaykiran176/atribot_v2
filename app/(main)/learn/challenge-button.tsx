@@ -2,13 +2,13 @@
 
 import { PlayCircle, SquareStack, Gamepad2, Hammer, CircleHelp, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 type Challenge = {
   id: number;
   type: string;
   title: string | null;
   description: string | null;
+  imageSrc: string | null;
   order: number | null;
   content: string | null;
   isCompleted?: boolean | null;
@@ -85,7 +85,7 @@ export default function ChallengeButton({
                 {isCompleted ? (
                   <Check className="h-10 w-5 fill-primary-foreground text-primary-foreground fill-none stroke-[4]" />
                 ) : (
-                  <Icon className="w-8 h-8" />
+                  <Icon className="w-10 h-10" />
                 )}
               </Button>
             </div>
@@ -98,7 +98,7 @@ export default function ChallengeButton({
               {isCompleted ? (
                 <Check className="h-10 w-10 fill-primary-foreground text-primary-foreground fill-none stroke-[4]" />
               ) : (
-                <Icon className="w-8 h-8" />
+                <Icon className="w-10 h-10" />
               )}
             </Button>
           )}

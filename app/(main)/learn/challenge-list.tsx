@@ -1,18 +1,12 @@
 import ChallengeButton from "./challenge-button";
-
-type Challenge = {
-  id: number;
-  type: string;
-  title: string | null;
-  description: string | null;
-  order: number | null;
-  content: string | null;
-  isCompleted?: boolean | null;
-};
+import TopicImage from "./topic-image";
+import { Challenge } from "@/types/challenge";
 
 type ChallengeListProps = {
   challenges: Challenge[];
   topicIndex: number;
+  topicImage: string;
+  topicTitle: string;
 };
 
 const getStateForChallenges = (challenges: Challenge[]) => {
@@ -24,46 +18,56 @@ const getStateForChallenges = (challenges: Challenge[]) => {
   return { sorted, activeIdx };
 };
 
-export default function ChallengeList({ challenges, topicIndex }: ChallengeListProps) {
+export default function ChallengeList({ challenges, topicIndex, topicImage, topicTitle }: ChallengeListProps) {
   const { sorted, activeIdx } = getStateForChallenges(challenges || []);
 
-  return (
-    <div className="flex flex-col items-center gap-6 py-4 relative w-full ">
-      {sorted.map((c, idx) => {
-        const isCompleted = Boolean(c.isCompleted);
-        const isCurrent = !isCompleted && idx === activeIdx;
-        const locked = !isCompleted && idx > activeIdx;
+  const isImageRight = topicIndex % 2 !== 0;
 
-        // Topic-based alternating positioning
-        const isRightTopic = topicIndex % 2 === 0; // Even topics (0, 2, 4...) use right, odd topics (1, 3, 5...) use left
-        
-        // Duolingo-like staggered indentation cycle within each topic
-        const cycleLength = 8;
-        const cycleIndex = idx % cycleLength;
-        let indentationLevel: number;
-        if (cycleIndex <= 2) indentationLevel = cycleIndex;
-        else if (cycleIndex <= 4) indentationLevel = 4 - cycleIndex;
-        else if (cycleIndex <= 6) indentationLevel = 4 - cycleIndex;
-        else indentationLevel = cycleIndex - 8;
-        
-        // Apply positioning based on topic index
-        const rightPosition = isRightTopic 
-          ? indentationLevel * 40  // Right positioning for even topics
-          : indentationLevel * -40; // Left positioning for odd topics
-        return (
-        
-            <ChallengeButton
-              key={c.id}
-              challenge={c}
-              index={idx}
-              isCompleted={isCompleted}
-              isCurrent={isCurrent}
-              locked={locked}
-              rightPosition={rightPosition}
-            />
-         
-        );
-      })}
+  return (
+    <div className="relative w-full max-w-4xl mx-auto py-8">
+      <div className="w-full px-20">
+        {sorted.map((c, idx) => {
+          const isCompleted = Boolean(c.isCompleted);
+          const isCurrent = !isCompleted && idx === activeIdx;
+          const locked = !isCompleted && idx > activeIdx;
+
+          const isRightTopic = topicIndex % 2 === 0;
+          
+          const cycleLength = 8;
+          const cycleIndex = idx % cycleLength;
+          let indentationLevel: number;
+          if (cycleIndex <= 2) indentationLevel = cycleIndex;
+          else if (cycleIndex <= 4) indentationLevel = 4 - cycleIndex;
+          else if (cycleIndex <= 6) indentationLevel = 4 - cycleIndex;
+          else indentationLevel = cycleIndex - 8;
+          
+          const rightPosition = isRightTopic 
+            ? indentationLevel * 40
+            : indentationLevel * -40;
+            
+          return (
+            <div key={c.id} className="mb-4 w-full">
+              <ChallengeButton
+                challenge={c}
+                index={idx}
+                isCompleted={isCompleted}
+                isCurrent={isCurrent}
+                locked={locked}
+                rightPosition={rightPosition}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Topic Image absolutely positioned on the side */}
+      <div className={`absolute top-1/2 -translate-y-1/2 ${isImageRight ? 'right-0' : 'left-0'}`}>
+        <TopicImage 
+          imageSrc={topicImage}
+          title={topicTitle}
+          size={100}
+        />
+      </div>
     </div>
   );
 }

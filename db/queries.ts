@@ -3,6 +3,22 @@ import {db} from "@/db/drizzle";
 import { courses, userProgress, topics, challenges } from "./schema";
 import { eq, asc } from "drizzle-orm";
 
+type TopicWithChallenges = {
+  id: number;
+  title: string;
+  description: string | null;
+  imageSrc: string;
+  order: number;
+  challenges: Array<{
+    id: number | null;
+    type: string | null;
+    title: string | null;
+    description: string | null;
+    order: number | null;
+    content: string | null;
+  }>;
+};
+
 // Get all courses with React cache for deduplication
 export const getAllCourses = cache(async () => {
   try {
@@ -45,6 +61,7 @@ export const getCourseTopicsWithChallenges = cache(async (courseId: number) => {
         topicId: topics.id,
         topicTitle: topics.title,
         topicDescription: topics.description,
+        topicImageSrc: topics.imageSrc,
         topicOrder: topics.order,
         challengeId: challenges.id,
         challengeType: challenges.type,
@@ -59,20 +76,7 @@ export const getCourseTopicsWithChallenges = cache(async (courseId: number) => {
       .orderBy(asc(topics.order), asc(challenges.order));
 
     // group by topic
-    const map = new Map<number, {
-      id: number;
-      title: string;
-      description: string | null;
-      order: number;
-      challenges: Array<{
-        id: number | null;
-        type: string | null;
-        title: string | null;
-        description: string | null;
-        order: number | null;
-        content: string | null;
-      }>;
-    }>();
+    const map = new Map<number, TopicWithChallenges>();
 
     for (const r of rows) {
       if (!map.has(r.topicId)) {
@@ -80,6 +84,7 @@ export const getCourseTopicsWithChallenges = cache(async (courseId: number) => {
           id: r.topicId,
           title: r.topicTitle,
           description: r.topicDescription ?? null,
+          imageSrc: r.topicImageSrc,
           order: r.topicOrder,
           challenges: [],
         });
@@ -96,7 +101,8 @@ export const getCourseTopicsWithChallenges = cache(async (courseId: number) => {
       }
     }
 
-    return Array.from(map.values()).sort((a, b) => a.order - b.order);
+    const result = Array.from(map.values()).sort((a, b) => a.order - b.order) as TopicWithChallenges[];
+    return result;
   } catch (error) {
     console.error("Error fetching course topics/challenges:", error);
     return [] as any[];

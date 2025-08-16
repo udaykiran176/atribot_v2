@@ -42,11 +42,41 @@ const seed = async () => {
       
       // Insert topics for "Build your own circuit" course
       const topicsData = [
-        { title: "Basic LED Circuit", description: "Learn the fundamentals of LED circuits", courseId: buildCircuitCourse.id, order: 1 },
-        { title: "Push On/Off Switch", description: "Understanding push button switches", courseId: buildCircuitCourse.id, order: 2 },
-        { title: "Tactile Switch", description: "Working with tactile switches", courseId: buildCircuitCourse.id, order: 3 },
-        { title: "Two-Way Switch", description: "Implementing two-way switching", courseId: buildCircuitCourse.id, order: 4 },
-        { title: "Limit Switch", description: "Using limit switches in circuits", courseId: buildCircuitCourse.id, order: 5 },
+        { 
+          title: "Basic LED Circuit", 
+          description: "Learn the fundamentals of LED circuits", 
+          courseId: buildCircuitCourse.id, 
+          imageSrc: "/topic_images/led_circuit.svg",
+          order: 1 
+        },
+        { 
+          title: "Push On/Off Switch", 
+          description: "Understanding push button switches", 
+          courseId: buildCircuitCourse.id, 
+          imageSrc: "/topic_images/push_switch.svg",
+          order: 2 
+        },
+        { 
+          title: "Tactile Switch", 
+          description: "Working with tactile switches", 
+          courseId: buildCircuitCourse.id, 
+          imageSrc: "/topic_images/tactile_switch.svg",
+          order: 3 
+        },
+        { 
+          title: "Two-Way Switch", 
+          description: "Implementing two-way switching", 
+          courseId: buildCircuitCourse.id, 
+          imageSrc: "/topic_images/two_way_switch.svg",
+          order: 4 
+        },
+        { 
+          title: "Limit Switch", 
+          description: "Using limit switches in circuits", 
+          courseId: buildCircuitCourse.id, 
+          imageSrc: "/topic_images/limit_switch.svg",
+          order: 5 
+        },
       ];
 
       const insertedTopics = await db.insert(topics).values(topicsData).returning();
@@ -81,11 +111,41 @@ const seed = async () => {
       
       // Insert topics for "introduction to sensors" course
       const sensorsTopicsData = [
-        { title: "IR Sensor", description: "Learn about Infrared sensors and their applications", courseId: sensorsCourse.id, order: 1 },
-        { title: "LDR Sensor", description: "Understanding Light Dependent Resistor sensors", courseId: sensorsCourse.id, order: 2 },
-        { title: "Fire Sensor", description: "Working with fire detection sensors", courseId: sensorsCourse.id, order: 3 },
-        { title: "Soil Sensor", description: "Implementing soil moisture sensors", courseId: sensorsCourse.id, order: 4 },
-        { title: "Water Level Sensor", description: "Using water level detection sensors", courseId: sensorsCourse.id, order: 5 },
+        { 
+          title: "IR Sensor", 
+          description: "Learn about Infrared sensors and their applications", 
+          courseId: sensorsCourse.id, 
+          imageSrc: "/topic_images/ir_sensor.png",
+          order: 1 
+        },
+        { 
+          title: "LDR Sensor", 
+          description: "Understanding Light Dependent Resistor sensors", 
+          courseId: sensorsCourse.id, 
+          imageSrc: "/topic_images/ldr_sensor.png",
+          order: 2 
+        },
+        { 
+          title: "Fire Sensor", 
+          description: "Working with fire detection sensors", 
+          courseId: sensorsCourse.id, 
+          imageSrc: "/topic_images/fire_sensor.png",
+          order: 3 
+        },
+        { 
+          title: "Soil Sensor", 
+          description: "Implementing soil moisture sensors", 
+          courseId: sensorsCourse.id, 
+          imageSrc: "/topic_images/soil_sensor.png",
+          order: 4 
+        },
+        { 
+          title: "Water Level Sensor", 
+          description: "Using water level detection sensors", 
+          courseId: sensorsCourse.id, 
+          imageSrc: "/topic_images/water_level_sensor.png",
+          order: 5 
+        },
       ];
 
       const insertedSensorsTopics = await db.insert(topics).values(sensorsTopicsData).returning();
