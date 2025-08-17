@@ -7,7 +7,7 @@ import { schema } from "@/db/schema";
 // Get the base URL for the current environment (supports Netlify, Vercel, and custom)
 const getBaseURL = () => {
   if (process.env.NODE_ENV === 'production') {
-    return 'https://app.netlify.com';
+    return 'https://atribot-1.netlify.app';
   }
   // Default to localhost for development
   return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
