@@ -6,7 +6,7 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import LearnClient from "./learn-client";
-import NextLesson from "./next-lesson";
+
 
 
 export default async function LearnPage() {
@@ -44,9 +44,7 @@ export default async function LearnPage() {
           </StickyWrapper>
 
           <FeedWrapper>
-                        <LearnClient courseTitle={userProgress.activeCourse.title} topics={toc as any} />
-            <NextLesson />
-         
+               <LearnClient courseTitle={userProgress.activeCourse.title} topics={toc as any} />
           </FeedWrapper>
         </div>
       );
