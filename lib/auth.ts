@@ -4,9 +4,14 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db/drizzle";
 import { schema } from "@/db/schema";
 
-// Get the base URL for the current environment (supports Netlify, Vercel, and custom)
+// Get the base URL for the current environment (optimized for Netlify)
 const getBaseURL = () => {
-  // Default to localhost for development
+  // In production on Netlify, use the URL from environment variables
+  if (process.env.NODE_ENV === 'production') {
+    // Netlify provides this environment variable
+    return process.env.URL || 'https://atribot-1.netlify.app';
+  }
+  // For development, use NEXT_PUBLIC_APP_URL or default to localhost
   return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 };
 
