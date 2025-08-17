@@ -25,6 +25,14 @@ export default function ChallengeList({ challenges, topicIndex, topicImage, topi
 
   return (
     <div className="relative w-full max-w-4xl mx-auto py-2">
+       {/* Topic Image absolutely positioned on the side */}
+       <div className={`absolute top-1/2 -translate-y-1/2 ${isImageRight ? 'right-0' : 'left-0'}`}>
+        <TopicImage 
+          imageSrc={topicImage}
+          title={topicTitle}
+          size={100}
+        />
+      </div>
       <div className="w-full px-10">
         {sorted.map((c, idx) => {
           const isCompleted = Boolean(c.isCompleted);
@@ -46,7 +54,7 @@ export default function ChallengeList({ challenges, topicIndex, topicImage, topi
             : indentationLevel * -40;
             
           return (
-            <div key={c.id} className="mb-4 w-full">
+            <div key={c.id} className="mb-5 w-full">
               <ChallengeButton
                 challenge={c}
                 index={idx}
@@ -60,14 +68,7 @@ export default function ChallengeList({ challenges, topicIndex, topicImage, topi
         })}
       </div>
 
-      {/* Topic Image absolutely positioned on the side */}
-      <div className={`absolute top-1/2 -translate-y-1/2 ${isImageRight ? 'right-0' : 'left-0'}`}>
-        <TopicImage 
-          imageSrc={topicImage}
-          title={topicTitle}
-          size={100}
-        />
-      </div>
+     
     </div>
   );
 }

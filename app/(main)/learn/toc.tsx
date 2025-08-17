@@ -1,7 +1,7 @@
 import TopicName from "./topic-name";
 import ChallengeList from "./challenge-list";
 
-import { Challenge, Topic } from "@/types/challenge";
+import { Topic } from "@/types/challenge";
 
 type TocProps = {
   topics: Topic[];
@@ -23,7 +23,7 @@ export default function Toc({ topics, setRef }: TocProps) {
             <header>
                <TopicName title={t.title} />
             </header>
-            <div className="mt-4 px-4">
+            <div className="mt-2 px-2">
               <ChallengeList 
                 challenges={t.challenges} 
                 topicIndex={i} 

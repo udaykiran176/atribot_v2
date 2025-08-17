@@ -1,6 +1,13 @@
 "use client";
 
-import { PlayCircle, SquareStack, Gamepad2, Hammer, CircleHelp, Check } from "lucide-react";
+import { Check, CircleHelp } from "lucide-react";
+import { FaVideo,FaTools  } from "react-icons/fa";
+import { MdSwipeLeft } from "react-icons/md";
+import { FaQuestion } from "react-icons/fa";
+import { IoGameController } from "react-icons/io5";
+
+
+
 import { Button } from "@/components/ui/button";
 
 type Challenge = {
@@ -25,11 +32,11 @@ type ChallengeButtonProps = {
 
 const typeIcon = (type?: string) => {
   const t = (type || "").toLowerCase();
-  if (t.includes("video")) return PlayCircle;
-  if (t.includes("swipe") || t.includes("card")) return SquareStack;
-  if (t.includes("game")) return Gamepad2;
-  if (t.includes("build")) return Hammer;
-  if (t.includes("quiz") || t.includes("test")) return CircleHelp;
+  if (t.includes("video")) return FaVideo;
+  if (t.includes("swipe") || t.includes("card")) return MdSwipeLeft;
+  if (t.includes("game")) return IoGameController;
+  if (t.includes("build")) return FaTools;
+  if (t.includes("quiz") || t.includes("test")) return FaQuestion;
   return CircleHelp;
 };
 

@@ -37,7 +37,7 @@ export default function FixedHeader({
           </Link>
 
           <div className="min-w-0">
-            <div className="text-sm/5 opacity-90 truncate">{courseTitle}</div>
+            <div className="text-base/5 opacity-90 truncate">{courseTitle}</div>
             {topicTitle ? (
               <div className="flex items-baseline gap-2">
                 <h1 className="text-base font-semibold truncate">{topicTitle}</h1>
