@@ -19,14 +19,29 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       // Store the loading state in sessionStorage to persist across redirects
       sessionStorage.setItem('isGoogleSigningIn', 'true');
       
-      // Use the auth callback route with the canonical URL
-      const callbackURL = `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/api/auth/callback`;
+      // Use hardcoded production URL to prevent Netlify branch URLs
+      const baseUrl = 'https://atribot-1.netlify.app';
+      const callbackURL = `${baseUrl}/api/auth/callback`;
       
       try {
-        await authClient.signIn.social({
-          provider: "google",
-          callbackURL,
-        });
+        // Force redirect to the main domain for auth
+        if (!window.location.hostname.endsWith('atribot-1.netlify.app')) {
+          window.location.href = `${baseUrl}/login`;
+          return;
+        }
+        
+        // Use window.open to handle the redirect in a new tab
+        const authWindow = window.open('about:blank', '_blank');
+        
+        try {
+          await authClient.signIn.social({
+            provider: "google",
+            callbackURL,
+          });
+        } catch (error) {
+          authWindow?.close();
+          throw error;
+        }
       } catch (error) {
         console.error("Sign-in error:", error);
         throw error;
