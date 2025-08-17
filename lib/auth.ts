@@ -6,7 +6,11 @@ import { schema } from "@/db/schema";
 
 // Get the base URL for the current environment (supports Netlify, Vercel, and custom)
 const getBaseURL = () => {
-  return "http://localhost:3000";
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://app.netlify.com';
+  }
+  // Default to localhost for development
+  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 };
 
 // Configure social providers only when credentials exist
