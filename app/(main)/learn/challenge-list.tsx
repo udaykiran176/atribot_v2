@@ -24,8 +24,8 @@ export default function ChallengeList({ challenges, topicIndex, topicImage, topi
   const isImageRight = topicIndex % 2 !== 0;
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto py-8">
-      <div className="w-full px-20">
+    <div className="relative w-full max-w-4xl mx-auto py-2">
+      <div className="w-full px-10">
         {sorted.map((c, idx) => {
           const isCompleted = Boolean(c.isCompleted);
           const isCurrent = !isCompleted && idx === activeIdx;

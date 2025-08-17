@@ -46,35 +46,35 @@ const seed = async () => {
           title: "Basic LED Circuit", 
           description: "Learn the fundamentals of LED circuits", 
           courseId: buildCircuitCourse.id, 
-          imageSrc: "/topic_images/led_circuit.svg",
+          imageSrc: "/topic_images/led.png",
           order: 1 
         },
         { 
           title: "Push On/Off Switch", 
           description: "Understanding push button switches", 
           courseId: buildCircuitCourse.id, 
-          imageSrc: "/topic_images/push_switch.svg",
+          imageSrc: "/topic_images/push_on.png",
           order: 2 
         },
         { 
           title: "Tactile Switch", 
           description: "Working with tactile switches", 
           courseId: buildCircuitCourse.id, 
-          imageSrc: "/topic_images/tactile_switch.svg",
+          imageSrc: "/topic_images/tactile.png",
           order: 3 
         },
         { 
           title: "Two-Way Switch", 
           description: "Implementing two-way switching", 
           courseId: buildCircuitCourse.id, 
-          imageSrc: "/topic_images/two_way_switch.svg",
+          imageSrc: "/topic_images/two_way.png",
           order: 4 
         },
         { 
           title: "Limit Switch", 
           description: "Using limit switches in circuits", 
           courseId: buildCircuitCourse.id, 
-          imageSrc: "/topic_images/limit_switch.svg",
+          imageSrc: "/topic_images/limit.png",
           order: 5 
         },
       ];
