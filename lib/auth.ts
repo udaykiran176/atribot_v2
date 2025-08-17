@@ -4,9 +4,13 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db/drizzle";
 import { schema } from "@/db/schema";
 
-// Get the base URL for Netlify or local development
+// Get the base URL for the current environment (supports Netlify, Vercel, and custom)
 const getBaseURL = () => {
-  return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
+  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  if (process.env.URL) return process.env.URL; // Netlify primary site URL
+  return "http://localhost:3000";
 };
 
 // Configure social providers only when credentials exist

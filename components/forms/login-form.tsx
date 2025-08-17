@@ -19,33 +19,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       // Store the loading state in sessionStorage to persist across redirects
       sessionStorage.setItem('isGoogleSigningIn', 'true');
       
-      // Use hardcoded production URL to prevent Netlify branch URLs
-      const baseUrl = 'https://atribot-1.netlify.app';
-      const callbackURL = `${baseUrl}/api/auth/callback`;
-      
-      try {
-        // Force redirect to the main domain for auth
-        if (!window.location.hostname.endsWith('atribot-1.netlify.app')) {
-          window.location.href = `${baseUrl}/login`;
-          return;
-        }
-        
-        // Use window.open to handle the redirect in a new tab
-        const authWindow = window.open('about:blank', '_blank');
-        
-        try {
-          await authClient.signIn.social({
-            provider: "google",
-            callbackURL,
-          });
-        } catch (error) {
-          authWindow?.close();
-          throw error;
-        }
-      } catch (error) {
-        console.error("Sign-in error:", error);
-        throw error;
-      }
+      // Use the auth callback route for proper redirect handling
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/api/auth/callback",
+      });
     } catch (err) {
       console.error("Sign-in error:", err);
       setError("Failed to sign in. Please try again or check your network connection.");
@@ -54,21 +32,23 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     }
   };
 
-  // Check for auth errors in URL query params
+  // Check for ongoing sign-in on component mount
   useEffect(() => {
-    // Check for error in URL params
-    const params = new URLSearchParams(window.location.search);
-    const error = params.get('error');
-    
-    if (error) {
-      setError(error);
-      // Clean up the URL
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
+    const isSigningIn = sessionStorage.getItem('isGoogleSigningIn') === 'true';
+    if (isSigningIn) {
+      setIsLoading(true);
+      
+      // Clear the flag after a delay in case the page is refreshed
+      const timer = setTimeout(() => {
+        sessionStorage.removeItem('isGoogleSigningIn');
+      }, 30000); // 30 seconds timeout
+      
+      // Clear the flag when component unmounts
+      return () => {
+        clearTimeout(timer);
+        sessionStorage.removeItem('isGoogleSigningIn');
+      };
     }
-    
-    // Clear any existing sign-in state
-    sessionStorage.removeItem('isGoogleSigningIn');
   }, []);
 
   return (
