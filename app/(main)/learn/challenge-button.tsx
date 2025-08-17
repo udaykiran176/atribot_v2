@@ -106,22 +106,23 @@ export default function ChallengeButton({
       const headerRect = header.getBoundingClientRect();
       const buttonRect = buttonRef.current.getBoundingClientRect();
 
-      // Hide dropdown if button is behind the header
       if (buttonRect.top < headerRect.bottom) {
         setIsOpen(false);
         return;
       }
 
       setDropdownPosition({
-        top: buttonRect.bottom + 8, // 8px gap
+        top: buttonRect.bottom + 8,
         left: buttonRect.left + buttonRect.width / 2,
       });
     };
 
     if (isOpen) {
-      updatePosition(); // Initial position check
+      updatePosition();
       window.addEventListener("scroll", updatePosition, true);
       window.addEventListener("resize", updatePosition);
+    } else {
+      setDropdownPosition(null);
     }
 
     return () => {

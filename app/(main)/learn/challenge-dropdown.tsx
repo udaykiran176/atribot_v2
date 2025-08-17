@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ChallengeDropdownProps = {
@@ -22,19 +22,19 @@ export function ChallengeDropdown({
   position
 }: ChallengeDropdownProps) {
   const variantClasses = {
-    video: 'bg-blue-100 border-blue-200',
+    video: 'bg-pink-100 border-pink-200',
     game: 'bg-purple-100 border-purple-200',
     build: 'bg-yellow-100 border-yellow-200',
     quiz: 'bg-green-100 border-green-200',
-    defaultChallenge: 'bg-gray-100 border-gray-200',
+    defaultChallenge: 'bg-blue-100 border-blue-200',
   };
 
   const buttonVariantClasses = {
-    video: 'bg-blue-500 hover:bg-blue-600 text-white',
+    video: 'bg-pink-500 hover:bg-pink-600 text-white',
     game: 'bg-purple-500 hover:bg-purple-600 text-white',
     build: 'bg-yellow-500 hover:bg-yellow-600 text-white',
     quiz: 'bg-green-500 hover:bg-green-600 text-white',
-    defaultChallenge: 'bg-gray-500 hover:bg-gray-600 text-white',
+    defaultChallenge: 'bg-blue-500 hover:bg-blue-600 text-white',
   };
 
   const currentVariant = variant in variantClasses ? variant : 'defaultChallenge';
@@ -47,9 +47,16 @@ export function ChallengeDropdown({
       style={{ top: position.top, left: position.left }}
     >
       <div className={cn(
-        "rounded-2xl border-2 p-4 shadow-lg transition-all duration-200",
+        "relative rounded-2xl border-2 p-4 shadow-lg transition-all duration-200",
         variantClasses[currentVariant as keyof typeof variantClasses]
       )}>
+        <button 
+          onClick={onClose} 
+          className="absolute top-2 right-2 h-8 w-8 rounded-full flex items-center justify-center bg-white/50 hover:bg-white/70 transition-colors duration-200 z-10"
+          aria-label="Close"
+        >
+          <X className="h-5 w-5 text-gray-600" />
+        </button>
         <div className="flex flex-col items-center text-center">
           <div className="w-full">
             <h1 className="text-xl font-bold text-gray-800 mb-1">
