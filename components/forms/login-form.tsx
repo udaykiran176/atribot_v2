@@ -19,12 +19,18 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       // Store the loading state in sessionStorage to persist across redirects
       sessionStorage.setItem('isGoogleSigningIn', 'true');
       
-      // Use the auth callback route with absolute URL for proper redirect handling
-      const callbackURL = new URL('/api/auth/callback', window.location.origin).toString();
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL,
-      });
+      // Use the auth callback route with the canonical URL
+      const callbackURL = `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/api/auth/callback`;
+      
+      try {
+        await authClient.signIn.social({
+          provider: "google",
+          callbackURL,
+        });
+      } catch (error) {
+        console.error("Sign-in error:", error);
+        throw error;
+      }
     } catch (err) {
       console.error("Sign-in error:", err);
       setError("Failed to sign in. Please try again or check your network connection.");
@@ -33,23 +39,21 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     }
   };
 
-  // Check for ongoing sign-in on component mount
+  // Check for auth errors in URL query params
   useEffect(() => {
-    const isSigningIn = sessionStorage.getItem('isGoogleSigningIn') === 'true';
-    if (isSigningIn) {
-      setIsLoading(true);
-      
-      // Clear the flag after a delay in case the page is refreshed
-      const timer = setTimeout(() => {
-        sessionStorage.removeItem('isGoogleSigningIn');
-      }, 30000); // 30 seconds timeout
-      
-      // Clear the flag when component unmounts
-      return () => {
-        clearTimeout(timer);
-        sessionStorage.removeItem('isGoogleSigningIn');
-      };
+    // Check for error in URL params
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    
+    if (error) {
+      setError(error);
+      // Clean up the URL
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
     }
+    
+    // Clear any existing sign-in state
+    sessionStorage.removeItem('isGoogleSigningIn');
   }, []);
 
   return (
