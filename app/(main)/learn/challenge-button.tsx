@@ -1,14 +1,13 @@
 "use client";
 
 import { Check, CircleHelp } from "lucide-react";
-import { FaVideo,FaTools  } from "react-icons/fa";
+import { useState, useEffect, useRef } from "react";
+import { FaVideo, FaTools } from "react-icons/fa";
 import { MdSwipeLeft } from "react-icons/md";
 import { FaQuestion } from "react-icons/fa";
 import { IoGameController } from "react-icons/io5";
-
-
-
 import { Button } from "@/components/ui/button";
+import { ChallengeDropdown } from "./challenge-dropdown";
 
 type Challenge = {
   id: number;
@@ -58,56 +57,139 @@ export default function ChallengeButton({
   locked,
   rightPosition,
 }: ChallengeButtonProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
   const Icon = typeIcon(challenge.type);
 
   const base = `relative h-[70px] w-[70px] border-b-8 shadow-[0_8px_0_rgba(0,0,0,0.2),0_8px_0_var(--path-level-color)] 
     before:content-[''] before:absolute before:left-0 before:w-full before:z-[-1] before:bg-[linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.2)),linear-gradient(var(--path-level-color),var(--path-level-color))] 
     before:h-2 before:top-[28.5px] after:content-[''] after:absolute after:left-0 after:w-full after:z-[-1]`;
 
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const toggleDropdown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsOpen(prev => !prev);
+  };
+
+  const closeDropdown = () => {
+    setIsOpen(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        closeDropdown();
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // Update dropdown position on scroll and resize
+  useEffect(() => {
+    const updatePosition = () => {
+      const header = document.getElementById('learn-page-header');
+      if (!buttonRef.current || !header) {
+        setIsOpen(false);
+        return;
+      }
+
+      const headerRect = header.getBoundingClientRect();
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+
+      // Hide dropdown if button is behind the header
+      if (buttonRect.top < headerRect.bottom) {
+        setIsOpen(false);
+        return;
+      }
+
+      setDropdownPosition({
+        top: buttonRect.bottom + 8, // 8px gap
+        left: buttonRect.left + buttonRect.width / 2,
+      });
+    };
+
+    if (isOpen) {
+      updatePosition(); // Initial position check
+      window.addEventListener("scroll", updatePosition, true);
+      window.addEventListener("resize", updatePosition);
+    }
+
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [isOpen]);
+
   return (
     <div 
-      key={challenge.id} 
       className="relative w-full select-none" 
       style={{ marginTop: isCurrent && index === 0 ? 60 : 0 }}
     >
       <div className="relative mx-auto flex w-full justify-center">
         <div 
-          className="relative flex flex-col items-center" 
-          style={{ transform: `translateX(${rightPosition}px)` }}
+          className="relative flex flex-col items-center"
         >
-          {isCurrent ? (
-            <div>
-              <div className="absolute -top-10 left-0 z-10 animate-bounce rounded-xl border-2 bg-white px-3 py-2.5 font-bold uppercase tracking-wide text-blue-500">
-                Start
-                <div
-                  className="absolute -bottom-2 left-1/2 h-0 w-0 -translate-x-1/2 transform border-x-8 border-t-8 border-x-transparent"
-                  aria-hidden
-                />
+          <div style={{ transform: `translateX(${rightPosition}px)` }}>
+            {isCurrent ? (
+              <div className="relative">
+                <div className="absolute -top-10 left-0 z-10 animate-bounce rounded-xl border-2 bg-white px-3 py-2.5 font-bold uppercase tracking-wide text-blue-500">
+                  Start
+                  <div
+                    className="absolute -bottom-2 left-1/2 h-0 w-0 -translate-x-1/2 transform border-x-8 border-t-8 border-x-transparent"
+                    aria-hidden
+                  />
+                </div>
+                <Button
+                  ref={buttonRef}
+                  size="rounded"
+                  variant={getVariantForChallenge(challenge.type)}
+                  className={base}
+                  onClick={toggleDropdown}
+                >
+                  {isCompleted ? (
+                    <Check className="h-10 w-5 fill-primary-foreground text-primary-foreground fill-none stroke-[4]" />
+                  ) : (
+                    <Icon className="w-10 h-10" />
+                  )}
+                </Button>
               </div>
+            ) : (
               <Button
+                ref={buttonRef}
                 size="rounded"
                 variant={getVariantForChallenge(challenge.type)}
                 className={base}
+                onClick={toggleDropdown}
               >
                 {isCompleted ? (
-                  <Check className="h-10 w-5 fill-primary-foreground text-primary-foreground fill-none stroke-[4]" />
+                  <Check className="h-10 w-10 fill-primary-foreground text-primary-foreground fill-none stroke-[4]" />
                 ) : (
                   <Icon className="w-10 h-10" />
                 )}
               </Button>
+            )}
+          </div>
+
+          {isOpen && dropdownPosition && (
+            <div ref={dropdownRef}>
+              <ChallengeDropdown 
+                challenge={challenge}
+                isCompleted={isCompleted}
+                onClose={closeDropdown}
+                variant={getVariantForChallenge(challenge.type)}
+                position={dropdownPosition}
+              />
             </div>
-          ) : (
-            <Button
-              size="rounded"
-              variant={getVariantForChallenge(challenge.type)}
-              className={base}
-            >
-              {isCompleted ? (
-                <Check className="h-10 w-10 fill-primary-foreground text-primary-foreground fill-none stroke-[4]" />
-              ) : (
-                <Icon className="w-10 h-10" />
-              )}
-            </Button>
           )}
         </div>
       </div>

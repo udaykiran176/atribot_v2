@@ -24,7 +24,7 @@ export default function FixedHeader({
   
   const currentColor = colors[topicIndex % colors.length];
   return (
-    <header className="sticky top-12.5 left-0 right-0 z-50 sm:top-0">
+    <header id="learn-page-header" className="sticky top-12.5 left-0 right-0 z-50 sm:top-0">
       <div className="bg-white text-white pt-2 sm:pt-5 ">
        <div className={`w-full items-center justify-between rounded-xl ${currentColor} p-2 text-white`}>
         <div className="flex items-center gap-3 px-4 py-2">
