@@ -19,10 +19,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       // Store the loading state in sessionStorage to persist across redirects
       sessionStorage.setItem('isGoogleSigningIn', 'true');
       
-      // Use the auth callback route for proper redirect handling
+      // Use the auth callback route with absolute URL for proper redirect handling
+      const callbackURL = new URL('/api/auth/callback', window.location.origin).toString();
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/api/auth/callback",
+        callbackURL,
       });
     } catch (err) {
       console.error("Sign-in error:", err);
