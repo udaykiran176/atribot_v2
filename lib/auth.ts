@@ -6,7 +6,7 @@ import { schema } from "@/db/schema";
 
 // Get the base URL for Netlify or local development
 const getBaseURL = () => {
-  return process.env.URL || "http://localhost:3000";
+  return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 };
 
 // Configure social providers only when credentials exist
