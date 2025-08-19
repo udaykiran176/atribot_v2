@@ -1,32 +1,13 @@
 "use client";
 
 import type { PropsWithChildren } from "react";
-import { useState, createContext, useContext } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { VideoLessonFooter } from "./footer";
 import { VideoLessonHeader } from "./header";
 import { ExitModal } from "@/components/modals/exit-modal";
-
-
-type VideoLessonContextType = {
-  currentLesson: number;
-  totalLessons: number;
-  setCurrentLesson: (lesson: number) => void;
-  setTotalLessons: (total: number) => void;
-  challengeId: number | null;
-  setChallengeId: (id: number | null) => void;
-};
-
-const VideoLessonContext = createContext<VideoLessonContextType | undefined>(undefined);
-
-export const useVideoLessonContext = () => {
-  const context = useContext(VideoLessonContext);
-  if (!context) {
-    throw new Error("useVideoLessonContext must be used within VideoLessonLayout");
-  }
-  return context;
-};
+import { VideoLessonContext, type VideoLessonContextType } from "./context";
 
 const VideoLessonLayout = ({ children }: PropsWithChildren) => {
   const [currentLesson, setCurrentLesson] = useState(1);
