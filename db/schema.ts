@@ -5,6 +5,7 @@ import {
   text,
   timestamp,
   serial,
+  pgSchema,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -84,6 +85,7 @@ export const topics = pgTable("topics", {
   order: integer("order").notNull().default(0),
 });
 
+// First define the tables without relations
 export const challenges = pgTable("challenges", {
   id: serial("id").primaryKey(),
   topicId: integer("topic_id").notNull().references(() => topics.id, {
@@ -97,8 +99,37 @@ export const challenges = pgTable("challenges", {
   isCompleted: boolean("is_completed").notNull().default(false),
 });
 
+export const videoLessons = pgTable("video_lessons", {
+  id: serial("id").primaryKey(),
+  challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
+    onDelete: "cascade",
+  }),
+  videoUrl: text("video_url").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Then define the relations
+export const videoLessonsRelations = relations(videoLessons, ({ one, many }) => ({
+  challenge: one(challenges, {
+    fields: [videoLessons.challengeId],
+    references: [challenges.id],
+  }),
+  userProgress: many(userVideoProgress),
+}));
+
+// Combined challengesRelations with all relations
+
 export const coursesRelations = relations(courses, ({ many }) => ({
   userProgress: many(userProgress),
+  topics: many(topics),
+}));
+
+export const userRelations = relations(user, ({ many }) => ({
+  userProgress: many(userProgress),
+  videoProgress: many(userVideoProgress),
   topics: many(topics),
 }));
 
@@ -111,6 +142,7 @@ export const userProgress = pgTable("user_progress", {
   }),
   points: integer("points").notNull().default(0),
   streak: integer("streak").notNull().default(0),
+  lastStreakUpdate: timestamp("last_streak_update"),
 });
 
 export const topicsRelations = relations(topics, ({ one, many }) => ({
@@ -126,31 +158,32 @@ export const challengesRelations = relations(challenges, ({ one, many }) => ({
     fields: [challenges.topicId],
     references: [topics.id],
   }),
-  userChallengeProgress: many(userChallengeProgress),
+  videoLessons: many(videoLessons),
 }));
 
-export const userChallengeProgress = pgTable("user_challenge_progress", {
+export const userVideoProgress = pgTable("user_video_progress", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull().references(() => user.id, {
     onDelete: "cascade",
   }),
-  challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
+  videoLessonId: integer("video_lesson_id").notNull().references(() => videoLessons.id, {
     onDelete: "cascade",
   }),
   isCompleted: boolean("is_completed").notNull().default(false),
-  score: integer("score").default(0),
+  xpAwarded: boolean("xp_awarded").notNull().default(false),
   completedAt: timestamp("completed_at"),
-  createdAt: timestamp("created_at").$defaultFn(() => new Date()).notNull(),
+  score: integer("score").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const userChallengeProgressRelations = relations(userChallengeProgress, ({ one }) => ({
+export const userVideoProgressRelations = relations(userVideoProgress, ({ one }) => ({
   user: one(user, {
-    fields: [userChallengeProgress.userId],
+    fields: [userVideoProgress.userId],
     references: [user.id],
   }),
-  challenge: one(challenges, {
-    fields: [userChallengeProgress.challengeId],
-    references: [challenges.id],
+  videoLesson: one(videoLessons, {
+    fields: [userVideoProgress.videoLessonId],
+    references: [videoLessons.id],
   }),
 }));
 
@@ -172,5 +205,5 @@ export const schema = {
   topics,
   challenges,
   userProgress,
-  userChallengeProgress,
+  userVideoProgress,
 };

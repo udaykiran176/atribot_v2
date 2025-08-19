@@ -1,7 +1,7 @@
 import {cache} from "react";
 import {db} from "@/db/drizzle";
-import { courses, userProgress, topics, challenges } from "./schema";
-import { eq, asc } from "drizzle-orm";
+import { courses, userProgress, topics, challenges, videoLessons } from "./schema";
+import { eq, asc, desc, gt, sql } from "drizzle-orm";
 
 type TopicWithChallenges = {
   id: number;
@@ -110,6 +110,21 @@ export const getCourseTopicsWithChallenges = cache(async (courseId: number) => {
 });
 
 // Update user's active course
+export const getVideoLessonsByChallengeId = cache(async (challengeId: number) => {
+  try {
+    const lessons = await db
+      .select()
+      .from(videoLessons)
+      .where(eq(videoLessons.challengeId, challengeId))
+      .orderBy(asc(videoLessons.order));
+    
+    return lessons;
+  } catch (error) {
+    console.error("Error fetching video lessons:", error);
+    return [];
+  }
+});
+
 export const updateUserProgress = async (userId: string, courseId: number) => {
   try {
     await db
@@ -125,3 +140,50 @@ export const updateUserProgress = async (userId: string, courseId: number) => {
     return false;
   }
 };
+
+// Leaderboard: top N users by points
+export const getLeaderboardTop = cache(async (limit = 10) => {
+  try {
+    const rows = await db
+      .select({
+        userId: userProgress.userId,
+        userName: userProgress.userName,
+        userImageSrc: userProgress.userImageSrc,
+        points: userProgress.points,
+      })
+      .from(userProgress)
+      .orderBy(desc(userProgress.points))
+      .limit(limit);
+    return rows;
+  } catch (error) {
+    console.error("Error fetching leaderboard top:", error);
+    return [] as Array<{userId: string; userName: string; userImageSrc: string; points: number}>;
+  }
+});
+
+// Leaderboard: get a user's rank based on points (1-based)
+export const getUserRank = cache(async (userId: string) => {
+  try {
+    const user = await db
+      .select({
+        userId: userProgress.userId,
+        points: userProgress.points,
+      })
+      .from(userProgress)
+      .where(eq(userProgress.userId, userId))
+      .then(r => r[0]);
+
+    if (!user) return null;
+
+    const higherCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(userProgress)
+      .where(gt(userProgress.points, user.points))
+      .then(r => (r[0]?.count ?? 0));
+
+    return { rank: higherCount + 1, points: user.points } as { rank: number; points: number };
+  } catch (error) {
+    console.error("Error calculating user rank:", error);
+    return null;
+  }
+});

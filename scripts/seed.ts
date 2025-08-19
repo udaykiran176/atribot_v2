@@ -1,7 +1,7 @@
 //seed the database with the courses
 
 import { db } from "@/db/drizzle";
-import { courses, topics, challenges } from "@/db/schema";
+import { courses, topics, challenges, videoLessons } from "@/db/schema";
 
 const seed = async () => {
 
@@ -10,6 +10,7 @@ const seed = async () => {
     
     // Clear existing data
     await Promise.all([
+      db.delete(videoLessons),
       db.delete(challenges),
       db.delete(topics),
       db.delete(courses),
@@ -101,6 +102,98 @@ const seed = async () => {
 
       await db.insert(challenges).values(challengesData);
       console.log("Challenges seeded successfully");
+    }
+
+    // Seed Introduction to Robotics course with video lessons
+    const introCourse = insertedCourses.find(course => course.title === "Build your own circuit");
+    
+    if (introCourse) {
+      console.log("Seeding 'Introduction to Robotics' video lessons...");
+      
+      // Create a topic for Introduction to Robotics
+      const introTopic = await db.insert(topics).values({
+        title: "Introduction to Robotics",
+        description: "Learn the fundamentals of robotics and what makes robots special",
+        courseId: introCourse.id,
+        imageSrc: "/topic_images/robot.png",
+        order: 1
+      }).returning();
+
+      if (introTopic[0]) {
+        const videoLessonsData = [
+          {
+            title: "Introduction to Robotics",
+            description: "Get started with the basics of robotics and its applications",
+            videoUrl: "/VideoLessons/01_Introduction to robotics/01_introduction to robotic.mp4",
+            order: 1,
+            challengeId: 0 // Will be updated after challenge creation
+          },
+          {
+            title: "The Secret Formula Behind Robotics",
+            description: "Discover the key principles that make robotics work",
+            videoUrl: "/VideoLessons/01_Introduction to robotics/02_The Secret formul behind robotics.mp4",
+            order: 2,
+            challengeId: 0
+          },
+          {
+            title: "What is a Robot?",
+            description: "Understanding what defines a robot and its components",
+            videoUrl: "/VideoLessons/01_Introduction to robotics/03_what is robot.mp4",
+            order: 3,
+            challengeId: 0
+          },
+          {
+            title: "Why Do We Use Robots?",
+            description: "Exploring the various applications and benefits of robots",
+            videoUrl: "/VideoLessons/01_Introduction to robotics/04_Why Do We Use Robots.mp4",
+            order: 4,
+            challengeId: 0
+          },
+          {
+            title: "Are All Machines Robots?",
+            description: "Understanding the difference between machines and robots",
+            videoUrl: "/VideoLessons/01_Introduction to robotics/05_Are All Machines Robots.mp4",
+            order: 5,
+            challengeId: 0
+          },
+          {
+            title: "What Makes Robots Special?",
+            description: "Key characteristics that set robots apart from other machines",
+            videoUrl: "/VideoLessons/01_Introduction to robotics/06_What Makes Robots Special.mp4",
+            order: 6,
+            challengeId: 0
+          },
+          {
+            title: "Final Recap",
+            description: "Summary of key concepts learned in Introduction to Robotics",
+            videoUrl: "/VideoLessons/01_Introduction to robotics/07_Final Recap.mp4",
+            order: 7,
+            challengeId: 0
+          }
+        ];
+
+        // Create a challenge for the video lessons
+        const challenge = await db.insert(challenges).values({
+          topicId: introTopic[0].id,
+          type: "video_lesson",
+          title: "Introduction to Robotics Video Series",
+          description: "A comprehensive video series introducing the fundamentals of robotics",
+          order: 1,
+          isCompleted: false
+        }).returning();
+
+        if (challenge[0]) {
+          // Update challengeId for all video lessons
+          const videoLessonsWithChallengeId = videoLessonsData.map(lesson => ({
+            ...lesson,
+            challengeId: challenge[0].id
+          }));
+
+          // Insert video lessons
+          await db.insert(videoLessons).values(videoLessonsWithChallengeId);
+          console.log("Video lessons seeded successfully");
+        }
+      }
     }
 
     // Get the "introduction to sensors" course ID

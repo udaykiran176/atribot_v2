@@ -6,11 +6,9 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import LearnClient from "./learn-client";
-
-
+import { CertificateCard } from "./certificate-card";
 
 export default async function LearnPage() {
-  
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -31,7 +29,7 @@ export default async function LearnPage() {
     if (userProgress.activeCourse) {
       const toc = await getCourseTopicsWithChallenges(userProgress.activeCourseId);
       return (
-        <div className="flex flex-row-reverse gap-[48px] px-6">
+        <div className="flex flex-row-reverse gap-[48px] px-6 pb-12 lg:pb-0">
           <StickyWrapper>
           <UserProgress
           activeCourse={userProgress.activeCourse}
@@ -42,10 +40,13 @@ export default async function LearnPage() {
          // hasActiveSubscription={isPro}
         />
           </StickyWrapper>
-
-          <FeedWrapper>
+           <FeedWrapper>
                <LearnClient courseTitle={userProgress.activeCourse.title} topics={toc as any} />
-          </FeedWrapper>
+               {/*get get certificate card*/}
+               <div >
+               <CertificateCard/>
+               </div>
+           </FeedWrapper>
         </div>
       );
     }

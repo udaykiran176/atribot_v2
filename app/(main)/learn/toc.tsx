@@ -17,7 +17,7 @@ export default function Toc({ topics, setRef }: TocProps) {
           id={`topic-${t.id}`}
           data-topic-id={t.id}
           ref={setRef(t.id)}
-          className="relative pt-10 -mt-16 pb-8" // Add padding to account for fixed header
+          className="relative pt-10 -mt-16 pb-4" // Add padding to account for fixed header
         >
           <div className="relative">
             <header>

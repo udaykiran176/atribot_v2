@@ -71,6 +71,34 @@
       "when": 1755322602703,
       "tag": "0009_complex_thundra",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1755572423801,
+      "tag": "0010_nasty_proemial_gods",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1755598713985,
+      "tag": "0011_green_gamma_corps",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1755599883515,
+      "tag": "0012_lame_lilandra",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1755600558680,
+      "tag": "0013_optimal_maelstrom",
+      "breakpoints": true
     }
   ]
 }
