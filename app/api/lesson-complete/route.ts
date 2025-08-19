@@ -3,8 +3,8 @@ import { db } from "@/db/drizzle";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { ExtendedSession } from "@/lib/types";
-import { userProgress, challenges } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { userProgress, challenges, userChallengeProgress } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 
 const POINTS_PER_LESSON = 20;
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return new NextResponse("Invalid challengeId", { status: 400 });
     }
 
-    // Fetch the challenge
+    // Ensure the challenge exists
     const challenge = await db.query.challenges.findFirst({
       where: eq(challenges.id, challengeId),
     });
@@ -33,15 +33,22 @@ export async function POST(req: Request) {
       return new NextResponse("Challenge not found", { status: 404 });
     }
 
-    // If already completed, treat as practice — do NOT alter points/streak
-    if (challenge.isCompleted) {
-      return NextResponse.json({ status: 'practice', message: 'Already completed. No additional points awarded.' }, { status: 200 });
-    }
+    // Check per-user completion
+    const existingProgress = await db.query.userChallengeProgress.findFirst({
+      where: and(
+        eq(userChallengeProgress.userId, session.user.id),
+        eq(userChallengeProgress.challengeId, challengeId),
+        eq(userChallengeProgress.isCompleted, true)
+      ),
+    });
 
-    // Mark challenge as completed (global flag per schema)
-    await db.update(challenges)
-      .set({ isCompleted: true })
-      .where(eq(challenges.id, challengeId));
+    // If already completed by this user, treat as practice — do NOT alter points/streak
+    if (existingProgress) {
+      return NextResponse.json(
+        { status: 'practice', message: 'Already completed. No additional points awarded.' },
+        { status: 200 }
+      );
+    }
 
     // Ensure user progress exists
     let userProgressData = await db.query.userProgress.findFirst({
@@ -58,6 +65,15 @@ export async function POST(req: Request) {
         points: POINTS_PER_LESSON,
         streak: 1,
         lastStreakUpdate: now,
+      });
+
+      // Record per-user completion
+      await db.insert(userChallengeProgress).values({
+        userId: session.user.id,
+        challengeId,
+        isCompleted: true,
+        xpAwarded: true,
+        completedAt: now,
       });
 
       return NextResponse.json({ status: 'completed', pointsAwarded: POINTS_PER_LESSON }, { status: 200 });
@@ -84,6 +100,15 @@ export async function POST(req: Request) {
       streak: newStreak,
       lastStreakUpdate: now,
     }).where(eq(userProgress.userId, session.user.id));
+
+    // Record per-user completion
+    await db.insert(userChallengeProgress).values({
+      userId: session.user.id,
+      challengeId,
+      isCompleted: true,
+      xpAwarded: true,
+      completedAt: now,
+    });
 
     return NextResponse.json({ status: 'completed', pointsAwarded: POINTS_PER_LESSON }, { status: 200 });
   } catch (error) {

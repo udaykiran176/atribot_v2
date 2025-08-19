@@ -54,7 +54,6 @@ export default function ChallengeButton({
   index,
   isCompleted,
   isCurrent,
-  locked,
   rightPosition,
 }: ChallengeButtonProps) {
   const [isOpen, setIsOpen] = useState(false);

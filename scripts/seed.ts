@@ -179,7 +179,6 @@ const seed = async () => {
           title: "Introduction to Robotics Video Series",
           description: "A comprehensive video series introducing the fundamentals of robotics",
           order: 1,
-          isCompleted: false
         }).returning();
 
         if (challenge[0]) {

@@ -1,7 +1,7 @@
 import {cache} from "react";
 import {db} from "@/db/drizzle";
-import { courses, userProgress, topics, challenges, videoLessons } from "./schema";
-import { eq, asc, desc, gt, sql } from "drizzle-orm";
+import { courses, userProgress, topics, challenges, videoLessons, userChallengeProgress, user } from "./schema";
+import { eq, asc, desc, gt, sql, and } from "drizzle-orm";
 
 type TopicWithChallenges = {
   id: number;
@@ -16,6 +16,7 @@ type TopicWithChallenges = {
     description: string | null;
     order: number | null;
     content: string | null;
+    isCompleted?: boolean | null;
   }>;
 };
 
@@ -53,7 +54,7 @@ export const getUserProgress = cache(async (userId: string) => {
 });
 
 // Get topics with their 5 challenges for a course
-export const getCourseTopicsWithChallenges = cache(async (courseId: number) => {
+export const getCourseTopicsWithChallenges = cache(async (courseId: number, userId?: string) => {
   try {
     // rows: one row per (topic x challenge)
     const rows = await db
@@ -69,10 +70,20 @@ export const getCourseTopicsWithChallenges = cache(async (courseId: number) => {
         challengeDescription: challenges.description,
         challengeOrder: challenges.order,
         challengeContent: challenges.content,
+        challengeCompleted: userId ? userChallengeProgress.isCompleted : sql<boolean>`false`,
       })
       .from(topics)
       .where(eq(topics.courseId, courseId))
       .leftJoin(challenges, eq(challenges.topicId, topics.id))
+      .leftJoin(
+        userChallengeProgress,
+        userId
+          ? and(
+              eq(userChallengeProgress.challengeId, challenges.id),
+              eq(userChallengeProgress.userId, userId)
+            )
+          : eq(userChallengeProgress.challengeId, sql`NULL`) // noop when no user
+      )
       .orderBy(asc(topics.order), asc(challenges.order));
 
     // group by topic
@@ -97,6 +108,7 @@ export const getCourseTopicsWithChallenges = cache(async (courseId: number) => {
           description: r.challengeDescription,
           order: r.challengeOrder,
           content: r.challengeContent,
+          isCompleted: (r as any).challengeCompleted ?? false,
         });
       }
     }
@@ -147,11 +159,12 @@ export const getLeaderboardTop = cache(async (limit = 10) => {
     const rows = await db
       .select({
         userId: userProgress.userId,
-        userName: userProgress.userName,
+        userName: sql<string>`coalesce(${user.childName}, ${userProgress.userName})`,
         userImageSrc: userProgress.userImageSrc,
         points: userProgress.points,
       })
       .from(userProgress)
+      .leftJoin(user, eq(user.id, userProgress.userId))
       .orderBy(desc(userProgress.points))
       .limit(limit);
     return rows;

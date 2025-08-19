@@ -96,7 +96,6 @@ export const challenges = pgTable("challenges", {
   description: text("description"),
   content: text("content"), // JSON content specific to challenge type
   order: integer("order").notNull().default(0),
-  isCompleted: boolean("is_completed").notNull().default(false),
 });
 
 export const videoLessons = pgTable("video_lessons", {
@@ -161,6 +160,32 @@ export const challengesRelations = relations(challenges, ({ one, many }) => ({
   videoLessons: many(videoLessons),
 }));
 
+// Per-user challenge progress (tracks completion per user per challenge)
+export const userChallengeProgress = pgTable("user_challenge_progress", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id, {
+    onDelete: "cascade",
+  }),
+  challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
+    onDelete: "cascade",
+  }),
+  isCompleted: boolean("is_completed").notNull().default(false),
+  xpAwarded: boolean("xp_awarded").notNull().default(false),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const userChallengeProgressRelations = relations(userChallengeProgress, ({ one }) => ({
+  user: one(user, {
+    fields: [userChallengeProgress.userId],
+    references: [user.id],
+  }),
+  challenge: one(challenges, {
+    fields: [userChallengeProgress.challengeId],
+    references: [challenges.id],
+  }),
+}));
+
 export const userVideoProgress = pgTable("user_video_progress", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull().references(() => user.id, {
@@ -205,5 +230,6 @@ export const schema = {
   topics,
   challenges,
   userProgress,
+  userChallengeProgress,
   userVideoProgress,
 };
