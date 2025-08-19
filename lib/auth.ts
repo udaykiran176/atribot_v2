@@ -8,7 +8,8 @@ import { schema } from "@/db/schema";
 const getBaseURL = () => {
   // In production on Netlify, use the URL from environment variables
   if (process.env.NODE_ENV === 'production') {
-    // Netlify provides this environment variable
+    // Netlify provides URL for the main site; Google OAuth cannot whitelist dynamic preview domains
+    // so we prefer the main site URL here to avoid redirect_uri_mismatch on previews
     return process.env.URL || 'https://atribot-1.netlify.app';
   }
   // For development, use NEXT_PUBLIC_APP_URL or default to localhost
