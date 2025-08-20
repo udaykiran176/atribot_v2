@@ -21,7 +21,7 @@ const getClientBaseURL = () => {
   }
   // Production default (your deployed site)
   if (process.env.NODE_ENV === 'production') {
-    return 'https://atribot-1.netlify.app';
+    return 'https://atribot-1.netlify.app || https://atribot.com';
   }
   // Local development default
   return 'http://localhost:3000';
