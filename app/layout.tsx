@@ -7,6 +7,7 @@ import { ExitModal } from "@/components/modals/exit-modal";
 import { HeartsModal } from "@/components/modals/hearts-modal";
 import { PracticeModal } from "@/components/modals/practice-modal";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from '@vercel/analytics/next';
 
 const font = Nunito({
   variable: "--font-nunito",
@@ -27,6 +28,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${font.variable}`}>
         <SpeedInsights />
+        <Analytics />
         {children}
         <Toaster />
         <ExitModal />
