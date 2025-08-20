@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useBuildThoughtContext } from "./context";
+import { useMemo } from "react";
  
 
 type BuildItThoughtVideo = {
@@ -17,6 +18,15 @@ export function VideoPlayer({ videos, loading, error }: { videos: BuildItThought
   const router = useRouter();
   const { currentVideo } = useBuildThoughtContext();
   const currentVideoData = videos[currentVideo - 1];
+  const safeSrc = useMemo(() => {
+    const url = currentVideoData?.videoUrl ?? "";
+    try {
+      // encodeURI preserves valid URL parts but encodes spaces and other unsafe chars
+      return encodeURI(url);
+    } catch {
+      return url;
+    }
+  }, [currentVideoData?.videoUrl]);
   
 
   const handleBackToChallenges = () => {
@@ -73,11 +83,13 @@ export function VideoPlayer({ videos, loading, error }: { videos: BuildItThought
           <video
             key={currentVideoData.id}
             className="w-full h-full"
-            controls
+            autoPlay
+            muted
+            loop
             playsInline
             preload="metadata"
-            src={currentVideoData.videoUrl}
           >
+            <source src={safeSrc} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
