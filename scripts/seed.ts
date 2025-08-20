@@ -1,7 +1,7 @@
 //seed the database with the courses
 
 import { db } from "@/db/drizzle";
-import { courses, topics, challenges, videoLessons, swipeCards} from "@/db/schema";
+import { courses, topics, challenges, videoLessons, swipeCards, buildItThought} from "@/db/schema";
 
 const seed = async () => {
 
@@ -12,6 +12,7 @@ const seed = async () => {
     await Promise.all([
       db.delete(videoLessons),
       db.delete(swipeCards),
+      db.delete(buildItThought),
       db.delete(challenges),
       db.delete(topics),
       db.delete(courses),
@@ -31,10 +32,9 @@ const seed = async () => {
     const challengeTypes = [
       { type: "video_lesson", title: "Video Lesson", order: 1 },
       { type: "swipe_cards", title: "Swipe Cards", order: 2 },
-      { type: "build_it", title: "Build It", order: 3 },
-      { type: "interactive_game", title: "Interactive Game", order: 4 },
-      { type: "build_it_thought", title: "Build It Thought", order: 5 },
-      { type: "quiz", title: "Quiz (MCQ)", order: 6 },
+      { type: "interactive_game", title: "Interactive Game", order: 3 },
+      { type: "build_it_thought", title: "Build It Thought", order: 4 },
+      { type: "quiz", title: "Quiz (MCQ)", order: 5 },
     ];
 
     // Get the "Build your own circuit" course ID
@@ -155,6 +155,39 @@ const seed = async () => {
             },
           ]);
           console.log("Swipe cards seeded for 'Basic LED Circuit'");
+        }
+        
+        // Seed build_it_thought for "Basic LED Circuit" topic (5 videos)
+        const buildItThoughtChallenge = insertedChallenges.find(c => c.topicId === basicLedTopic.id && c.type === "build_it_thought");
+        if (buildItThoughtChallenge) {
+          await db.insert(buildItThought).values([
+            {
+              challengeId: buildItThoughtChallenge.id,
+              videoUrl: "/step by step gide/Level-1/Lighting An LED/led slide 1.mp4",
+              order: 1,
+            },
+            {
+              challengeId: buildItThoughtChallenge.id,
+              videoUrl: "/step by step gide/Level-1/Lighting An LED/led slide 2.mp4",
+              order: 2,
+            },
+            {
+              challengeId: buildItThoughtChallenge.id,
+              videoUrl: "/step by step gide/Level-1/Lighting An LED/led slide 3.mp4",
+              order: 3,
+            },
+            {
+              challengeId: buildItThoughtChallenge.id,
+              videoUrl: "/step by step gide/Level-1/Lighting An LED/led slide 4.mp4",
+              order: 4,
+            },
+            {
+              challengeId: buildItThoughtChallenge.id,
+              videoUrl: "/step by step gide/Level-1/Lighting An LED/led slide 5.mp4",
+              order: 5,
+            },
+          ]);
+          console.log("Build It Thought videos seeded for 'Basic LED Circuit'");
         }
       }
     }

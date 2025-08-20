@@ -30,7 +30,7 @@ export function SwipeCardsHeader({ progress, currentCard, totalCards }: Props) {
         <div className="flex-1 mx-6">
           <div className="w-full bg-gray-200 rounded-full h-3">
             <div
-              className="bg-green-500 h-3 rounded-full transition-all duration-300"
+              className="bg-blue-500 h-3 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>

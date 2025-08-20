@@ -38,13 +38,15 @@ export function CardDisplay() {
 
   return (
     <>
-    <div className="flex items-center justify-center h-full">
+    <div className="flex md:flex-row flex-col items-center justify-center h-full overflow-hidden">
+      <div>
         <Image
             src={currentCardData.image}
             alt={currentCardData.title}
             width={500}
             height={500}
         />
+      </div>
         <div>
             <h2 className="text-xl font-semibold text-gray-700">{currentCardData.title}</h2>
             <p className="text-gray-500 text-center max-w-md">
