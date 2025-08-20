@@ -14,6 +14,7 @@ function VideoLessonContent({ children }: PropsWithChildren) {
   const [totalLessons, setTotalLessons] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [challengeId, setChallengeId] = useState<number | null>(null);
+  const [hasLessons, setHasLessons] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -47,7 +48,7 @@ function VideoLessonContent({ children }: PropsWithChildren) {
       }
       setIsLoading(true);
       try {
-        const response = await fetch('/api/lesson-complete', {
+        const response = await fetch('/api/challenge-complete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ challengeId }),
@@ -75,6 +76,8 @@ function VideoLessonContent({ children }: PropsWithChildren) {
     setTotalLessons,
     challengeId,
     setChallengeId,
+    hasLessons,
+    setHasLessons,
   };
 
   return (

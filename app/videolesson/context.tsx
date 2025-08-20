@@ -9,6 +9,8 @@ export type VideoLessonContextType = {
   setTotalLessons: (total: number) => void;
   challengeId: number | null;
   setChallengeId: (id: number | null) => void;
+  hasLessons: boolean;
+  setHasLessons: (hasLessons: boolean) => void;
 };
 
 export const VideoLessonContext = createContext<VideoLessonContextType | undefined>(undefined);

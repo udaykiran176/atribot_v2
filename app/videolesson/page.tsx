@@ -23,7 +23,7 @@ function VideoLessonContent() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { setTotalLessons, setCurrentLesson, challengeId } = useVideoLessonContext();
+  const { setTotalLessons, setCurrentLesson, challengeId, setHasLessons } = useVideoLessonContext();
 
   useEffect(() => {
     async function fetchLessons() {
@@ -47,11 +47,15 @@ function VideoLessonContent() {
         if (fetchedLessons && fetchedLessons.length > 0) {
           setTotalLessons(fetchedLessons.length);
           setCurrentLesson(1);
+          setHasLessons(true);
+        } else {
+          setHasLessons(false);
         }
       } catch (error) {
         console.error("Error fetching lessons:", error);
         setError("Failed to load video lessons");
         setLessons([]);
+        setHasLessons(false);
       } finally {
         setLoading(false);
       }
@@ -89,7 +93,7 @@ export default function VideoLessonPage({ searchParams }: Props) {
         <div className="text-gray-500">Loading video lessons...</div>
       </div>
     }>
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center lg:h-full">
         <VideoLessonContent />
       </div>
     </Suspense>

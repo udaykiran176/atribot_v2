@@ -40,7 +40,7 @@ export function VideoLessonHeader({ progress, currentLesson, totalLessons }: Pro
           </div>
         </div>
         <div className="text-xs font-medium text-gray-600">
-              {currentLesson}/{totalLessons}
+               <p>Video <span className="font-semibold">{currentLesson}</span>/{totalLessons}</p>
             </div>
       </div>
     </div>
