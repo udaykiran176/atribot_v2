@@ -10,10 +10,10 @@ const getBaseURL = () => {
   if (process.env.NODE_ENV === 'production') {
     // Netlify provides URL for the main site; Google OAuth cannot whitelist dynamic preview domains
     // so we prefer the main site URL here to avoid redirect_uri_mismatch on previews
-    return process.env.URL || 'https://atribot-1.netlify.app';
+    return process.env.URL || 'https://atribot-1.netlify.app' || 'https://atribot.com';
   }
   // For development, use NEXT_PUBLIC_APP_URL or default to localhost
-  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' || 'https://atribot.com';
 };
 
 // Configure social providers only when credentials exist
