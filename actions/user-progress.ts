@@ -5,18 +5,19 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { ExtendedSession } from "@/lib/types";
 
 import { db } from "@/db/drizzle";
 import { getUserProgress, getAllCourses } from "@/db/queries";
-import { userProgress } from "@/db/schema";
+import { userProgress, user as userSchema } from "@/db/schema";
+
+type User = typeof userSchema.$inferSelect;
 
 export const upsertUserProgress = async (courseId: number) => {
-  const session = await auth.api.getSession({
+  const { user } = await auth.api.getSession({
     headers: await headers(),
-  }) as ExtendedSession | null;
+  });
 
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("Unauthorized. Please sign in to continue.");
   }
 
@@ -28,26 +29,30 @@ export const upsertUserProgress = async (courseId: number) => {
     throw new Error("Course not found. Please select a valid course.");
   }
 
-  const existingUserProgress = await getUserProgress(session.user.id);
+  const existingUserProgress = await getUserProgress(user.id);
 
   try {
     if (existingUserProgress) {
       // Update existing user progress
-      await db
-        .update(userProgress)
-        .set({
-          activeCourseId: courseId,
-          userName: session.user.name || "User",
-          userImageSrc: session.user.image || "/mascot.svg",
-        })
-        .where(eq(userProgress.userId, session.user.id));
+      if (existingUserProgress.activeCourseId === courseId) {
+        await db.update(userProgress).set({ activeCourseId: courseId }).where(eq(userProgress.userId, user.id));
+      } else {
+        await db
+          .update(userProgress)
+          .set({
+            activeCourseId: courseId,
+                        userName: user.name,
+            userImageSrc: user.image || "/mascot.svg",
+          })
+          .where(eq(userProgress.userId, user.id));
+      }
     } else {
       // Create new user progress
       await db.insert(userProgress).values({
-        userId: session.user.id,
+        userId: user.id,
         activeCourseId: courseId,
-        userName: session.user.name || "User",
-        userImageSrc: session.user.image || "/mascot.svg",
+                userName: user.name,
+        userImageSrc: user.image || "/mascot.svg",
       });
     }
 
@@ -64,11 +69,11 @@ export const upsertUserProgress = async (courseId: number) => {
 };
 
 export const reduceHearts = async (challengeId: number) => {
-  const session = await auth.api.getSession({
+  const { user } = await auth.api.getSession({
     headers: await headers(),
-  }) as ExtendedSession | null;
+  });
 
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("Unauthorized");
   }
 

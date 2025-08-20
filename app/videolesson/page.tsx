@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Suspense, useState, useEffect } from "react";
+import { VideoPlayer } from "./video-player";
 import { useVideoLessonContext } from "./context";
 
 type Props = {
@@ -20,12 +19,11 @@ type Lesson = {
   duration?: string;
 };
 
-export default function VideoLessonPage({ searchParams }: Props) {
+function VideoLessonContent() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { setTotalLessons, setCurrentLesson, currentLesson, challengeId } = useVideoLessonContext();
+  const { setTotalLessons, setCurrentLesson, challengeId } = useVideoLessonContext();
 
   useEffect(() => {
     async function fetchLessons() {
@@ -64,92 +62,36 @@ export default function VideoLessonPage({ searchParams }: Props) {
     }
   }, [challengeId, setTotalLessons, setCurrentLesson]);
 
-  const handleBackToChallenges = () => {
-    router.push("/learn");
-  };
+  return <VideoPlayer lessons={lessons} loading={loading} error={error} />;
+}
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center">
-        <div className="text-gray-500">Loading video lessons...</div>
-      </div>
-    );
-  }
+export default function VideoLessonPage({ searchParams }: Props) {
+  const { challengeId, setChallengeId } = useVideoLessonContext();
 
-  if (!challengeId || isNaN(challengeId) || error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full space-y-4">
-        <p className="text-gray-500">{error || "Invalid challenge ID"}</p>
-        <Button onClick={handleBackToChallenges} variant="outline">
-          Back to Challenges
-        </Button>
-      </div>
-    );
-  }
-
-  if (lessons.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full space-y-4">
-        <h2 className="text-xl font-semibold text-gray-700">No Video Lessons Available</h2>
-        <p className="text-gray-500 text-center max-w-md">
-          There are no video lessons available for this challenge yet.
-        </p>
-        <Button onClick={handleBackToChallenges} variant="outline">
-          Back to Challenges
-        </Button>
-      </div>
-    );
-  }
-
-  // Get current lesson based on currentLesson index
-  const currentLessonData = lessons[currentLesson - 1];
+  // Set the challenge ID from search params if available
+  useEffect(() => {
+    async function handleSearchParams() {
+      const params = await searchParams;
+      if (params?.id && !challengeId) {
+        const id = parseInt(params.id, 10);
+        if (!isNaN(id)) {
+          setChallengeId(id);
+        }
+      }
+    }
+    
+    handleSearchParams();
+  }, [searchParams, challengeId, setChallengeId]);
 
   return (
-    <div className="flex items-center justify-center h-full">
-      <div className="w-full max-w-4xl">
-        {currentLessonData ? (
-          <div >
-            {/* Video Player */}
-            <div className="relative aspect-video bg-black">
-              <video
-                key={currentLessonData.id}
-                className="w-full h-full"
-                controls
-                autoPlay
-                src={currentLessonData.videoUrl}
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            
-            {/* Video Info */}
-            <div className="p-4 lg:hidden">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {currentLessonData.title}
-                </h2>
-              </div>
-              
-              {currentLessonData.description && (
-                <p className="text-gray-600 leading-relaxed">
-                  {currentLessonData.description}
-                </p>
-              )}
-              
-              {currentLessonData.duration && (
-                <div className="mt-4 flex items-center text-sm text-gray-500">
-                  <span className="mr-2">⏱️</span>
-                  <span>Duration: {currentLessonData.duration}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="text-center text-gray-500">
-            No video lesson available
-          </div>
-        )}
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-full">
+        <div className="text-gray-500">Loading video lessons...</div>
       </div>
-    </div>
+    }>
+      <div className="flex items-center justify-center h-full">
+        <VideoLessonContent />
+      </div>
+    </Suspense>
   );
 }

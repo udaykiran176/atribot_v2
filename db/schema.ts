@@ -86,6 +86,18 @@ export const topics = pgTable("topics", {
 });
 
 // First define the tables without relations
+export const swipeCards = pgTable("swipe_cards", {
+  id: serial("id").primaryKey(),
+  challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
+    onDelete: "cascade",
+  }),
+  title: text("title").notNull(),
+  description: text("description"),
+  image: text("image"),
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const challenges = pgTable("challenges", {
   id: serial("id").primaryKey(),
   topicId: integer("topic_id").notNull().references(() => topics.id, {
@@ -110,31 +122,6 @@ export const videoLessons = pgTable("video_lessons", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const swipeCards = pgTable("swipe_cards", {
-  id: serial("id").primaryKey(),
-  challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
-    onDelete: "cascade",
-  }),
-  image: text("image").notNull(),
-  title: text("title").notNull(),
-  description: text("description"),
-  order: integer("order").notNull().default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const buildItChallenges = pgTable("build_it_challenges", {
-  id: serial("id").primaryKey(),
-  challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
-    onDelete: "cascade",
-  }),
-  title: text("title").notNull(),
-  description: text("description"),
-  initialCode: text("initial_code").notNull(), // HTML/CSS/JS code
-  solution: text("solution").notNull(), // Correct solution for comparison
-  order: integer("order").notNull().default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
 // Then define the relations
 export const videoLessonsRelations = relations(videoLessons, ({ one, many }) => ({
   challenge: one(challenges, {
@@ -142,20 +129,6 @@ export const videoLessonsRelations = relations(videoLessons, ({ one, many }) => 
     references: [challenges.id],
   }),
   userProgress: many(userVideoProgress),
-}));
-
-export const swipeCardsRelations = relations(swipeCards, ({ one }) => ({
-  challenge: one(challenges, {
-    fields: [swipeCards.challengeId],
-    references: [challenges.id],
-  }),
-}));
-
-export const buildItChallengesRelations = relations(buildItChallenges, ({ one }) => ({
-  challenge: one(challenges, {
-    fields: [buildItChallenges.challengeId],
-    references: [challenges.id],
-  }),
 }));
 
 // Combined challengesRelations with all relations
@@ -191,6 +164,13 @@ export const topicsRelations = relations(topics, ({ one, many }) => ({
   challenges: many(challenges),
 }));
 
+export const swipeCardsRelations = relations(swipeCards, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [swipeCards.challengeId],
+    references: [challenges.id],
+  }),
+}));
+
 export const challengesRelations = relations(challenges, ({ one, many }) => ({
   topic: one(topics, {
     fields: [challenges.topicId],
@@ -198,7 +178,6 @@ export const challengesRelations = relations(challenges, ({ one, many }) => ({
   }),
   videoLessons: many(videoLessons),
   swipeCards: many(swipeCards),
-  buildItChallenges: many(buildItChallenges),
 }));
 
 // Per-user challenge progress (tracks completion per user per challenge)
@@ -260,6 +239,8 @@ export const userProgressRelations = relations(userProgress, ({ one }) => ({
   }),
 }));
 
+
+
 export const schema = {
   user,
   session,
@@ -268,8 +249,6 @@ export const schema = {
   courses,
   topics,
   challenges,
-  swipeCards,
-  buildItChallenges,
   userProgress,
   userChallengeProgress,
   userVideoProgress,

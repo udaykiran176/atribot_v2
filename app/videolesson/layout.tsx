@@ -1,7 +1,7 @@
 "use client";
 
 import type { PropsWithChildren } from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { VideoLessonFooter } from "./footer";
@@ -9,7 +9,7 @@ import { VideoLessonHeader } from "./header";
 import { ExitModal } from "@/components/modals/exit-modal";
 import { VideoLessonContext, type VideoLessonContextType } from "./context";
 
-const VideoLessonLayout = ({ children }: PropsWithChildren) => {
+function VideoLessonContent({ children }: PropsWithChildren) {
   const [currentLesson, setCurrentLesson] = useState(1);
   const [totalLessons, setTotalLessons] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -101,6 +101,18 @@ const VideoLessonLayout = ({ children }: PropsWithChildren) => {
         <ExitModal />
       </div>
     </VideoLessonContext.Provider>
+  );
+}
+
+const VideoLessonLayout = ({ children }: PropsWithChildren) => {
+  return (
+    <Suspense fallback={
+      <div className="h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    }>
+      <VideoLessonContent>{children}</VideoLessonContent>
+    </Suspense>
   );
 };
 

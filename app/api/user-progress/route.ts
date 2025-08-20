@@ -1,20 +1,19 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getUserProgress } from "@/db/queries";
-import { ExtendedSession } from "@/lib/types";
 import { headers } from "next/headers";
 
 export async function GET(req: Request) {
   try {
-    const session = await auth.api.getSession({
+    const { session, user } = await auth.api.getSession({
       headers: await headers(),
-    }) as ExtendedSession | null;
+    });
 
-    if (!session?.user?.id) {
+    if (!session || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const userProgress = await getUserProgress(session.user.id);
+    const userProgress = await getUserProgress(user.id);
 
     return NextResponse.json(userProgress);
   } catch (error) {

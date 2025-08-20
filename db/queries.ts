@@ -1,6 +1,6 @@
 import {cache} from "react";
 import {db} from "@/db/drizzle";
-import { courses, userProgress, topics, challenges, videoLessons, userChallengeProgress, user, swipeCards, buildItChallenges } from "./schema";
+import { courses, userProgress, topics, challenges, videoLessons, userChallengeProgress, user, swipeCards } from "./schema";
 import { eq, asc, desc, gt, sql, and } from "drizzle-orm";
 
 type TopicWithChallenges = {
@@ -43,21 +43,6 @@ export const getSwipeCardsByChallengeId = cache(async (challengeId: number) => {
   } catch (error) {
     console.error("Error fetching swipe cards by challengeId:", error);
     return [] as Array<{ id: number; challengeId: number; image: string; title: string; description: string | null; order: number }>;
-  }
-});
-
-// Get Build It challenge by challenge ID
-export const getBuildItChallengeById = cache(async (challengeId: number) => {
-  try {
-    const challenge = await db
-      .select()
-      .from(buildItChallenges)
-      .where(eq(buildItChallenges.challengeId, challengeId))
-      .then((rows) => rows[0]); // Assuming one build-it challenge per challengeId
-    return challenge;
-  } catch (error) {
-    console.error("Error fetching Build It challenge by challengeId:", error);
-    return null;
   }
 });
 

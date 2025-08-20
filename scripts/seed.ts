@@ -1,7 +1,7 @@
 //seed the database with the courses
 
 import { db } from "@/db/drizzle";
-import { courses, topics, challenges, videoLessons, swipeCards, buildItChallenges } from "@/db/schema";
+import { courses, topics, challenges, videoLessons, swipeCards} from "@/db/schema";
 
 const seed = async () => {
 
@@ -12,7 +12,6 @@ const seed = async () => {
     await Promise.all([
       db.delete(videoLessons),
       db.delete(swipeCards),
-      db.delete(buildItChallenges),
       db.delete(challenges),
       db.delete(topics),
       db.delete(courses),
@@ -156,41 +155,6 @@ const seed = async () => {
             },
           ]);
           console.log("Swipe cards seeded for 'Basic LED Circuit'");
-        }
-
-        // Seed a "Build It" challenge for the same topic
-        const buildItChallenge = insertedChallenges.find(c => c.topicId === basicLedTopic.id && c.type === "build_it");
-        if (buildItChallenge) {
-          await db.insert(buildItChallenges).values([{
-            challengeId: buildItChallenge.id,
-            title: "Build a Simple LED Circuit",
-            description: "Drag and drop components to build a working LED circuit.",
-            initialCode: `
-              <div class="circuit-board">
-                <div class="component battery">Battery</div>
-                <div class="component led">LED</div>
-                <div class="component resistor">Resistor</div>
-              </div>
-              <style>
-                .circuit-board { border: 2px dashed #ccc; padding: 20px; height: 300px; }
-                .component { border: 1px solid #000; padding: 10px; margin: 5px; display: inline-block; }
-              </style>
-            `,
-            solution: `
-              <div class="circuit-board">
-                <div class="component battery connected">Battery</div>
-                <div class="component resistor connected">Resistor</div>
-                <div class="component led connected">LED</div>
-              </div>
-              <style>
-                .circuit-board { border: 2px dashed #ccc; padding: 20px; height: 300px; }
-                .component { border: 1px solid #000; padding: 10px; margin: 5px; display: inline-block; }
-                .connected { border-color: green; }
-              </style>
-            `,
-            order: 1,
-          }]);
-          console.log("Build It challenge seeded for 'Basic LED Circuit'");
         }
       }
     }

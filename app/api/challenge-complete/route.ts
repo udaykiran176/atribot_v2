@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { ExtendedSession } from "@/lib/types";
 import { userProgress, challenges, userChallengeProgress } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 
@@ -11,11 +10,11 @@ const PRACTICE_POINTS = 5;
 
 export async function POST(req: Request) {
   try {
-    const session = await auth.api.getSession({
+    const { session, user } = await auth.api.getSession({
       headers: await headers(),
-    }) as ExtendedSession | null;
+    });
 
-    if (!session?.user?.id) {
+    if (!session || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -35,28 +34,28 @@ export async function POST(req: Request) {
     }
 
     // Check per-user completion
-    const existingProgress = await db.query.userChallengeProgress.findFirst({
+    const existingChallengeProgress = await db.query.userChallengeProgress.findFirst({
       where: and(
-        eq(userChallengeProgress.userId, session.user.id),
+        eq(userChallengeProgress.userId, user.id),
         eq(userChallengeProgress.challengeId, challengeId),
         eq(userChallengeProgress.isCompleted, true)
       ),
     });
 
     // If already completed by this user, treat as practice — award small XP and update streak
-    if (existingProgress) {
+    if (existingChallengeProgress) {
       // Ensure user progress exists
-      let userProgressData = await db.query.userProgress.findFirst({
-        where: eq(userProgress.userId, session.user.id),
+      let currentUserProgress = await db.query.userProgress.findFirst({
+        where: eq(userProgress.userId, user.id),
       });
 
       const now = new Date();
 
-      if (!userProgressData) {
+      if (!currentUserProgress) {
         await db.insert(userProgress).values({
-          userId: session.user.id,
-          userName: session.user.name || "User",
-          userImageSrc: session.user.image || "/mascot.svg",
+          userId: user.id,
+          userName: user.name || "User",
+          userImageSrc: user.image || "/mascot.svg",
           points: PRACTICE_POINTS,
           streak: 1,
           lastStreakUpdate: now,
@@ -66,8 +65,8 @@ export async function POST(req: Request) {
       }
 
       // Calculate streak (same logic as first-time completion)
-      const lastUpdate = userProgressData.lastStreakUpdate ? new Date(userProgressData.lastStreakUpdate) : null;
-      let newStreak = userProgressData.streak;
+      const lastUpdate = currentUserProgress.lastStreakUpdate ? new Date(currentUserProgress.lastStreakUpdate) : null;
+      let newStreak = currentUserProgress.streak;
       if (lastUpdate) {
         const diffTime = Math.abs(now.getTime() - lastUpdate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -81,26 +80,26 @@ export async function POST(req: Request) {
       }
 
       await db.update(userProgress).set({
-        points: userProgressData.points + PRACTICE_POINTS,
+        points: currentUserProgress.points + PRACTICE_POINTS,
         streak: newStreak,
         lastStreakUpdate: now,
-      }).where(eq(userProgress.userId, session.user.id));
+      }).where(eq(userProgress.userId, user.id));
 
       return NextResponse.json({ status: 'practice', pointsAwarded: PRACTICE_POINTS }, { status: 200 });
     }
 
     // Ensure user progress exists
-    let userProgressData = await db.query.userProgress.findFirst({
-      where: eq(userProgress.userId, session.user.id),
+    let currentUserProgress = await db.query.userProgress.findFirst({
+      where: eq(userProgress.userId, user.id),
     });
 
     const now = new Date();
 
-    if (!userProgressData) {
+    if (!currentUserProgress) {
       await db.insert(userProgress).values({
-        userId: session.user.id,
-        userName: session.user.name || "User",
-        userImageSrc: session.user.image || "/mascot.svg",
+        userId: user.id,
+        userName: user.name || "User",
+        userImageSrc: user.image || "/mascot.svg",
         points: POINTS_PER_LESSON,
         streak: 1,
         lastStreakUpdate: now,
@@ -108,7 +107,7 @@ export async function POST(req: Request) {
 
       // Record per-user completion
       await db.insert(userChallengeProgress).values({
-        userId: session.user.id,
+        userId: user.id,
         challengeId,
         isCompleted: true,
         xpAwarded: true,
@@ -119,8 +118,8 @@ export async function POST(req: Request) {
     }
 
     // Calculate streak
-    const lastUpdate = userProgressData.lastStreakUpdate ? new Date(userProgressData.lastStreakUpdate) : null;
-    let newStreak = userProgressData.streak;
+    const lastUpdate = currentUserProgress.lastStreakUpdate ? new Date(currentUserProgress.lastStreakUpdate) : null;
+    let newStreak = currentUserProgress.streak;
     if (lastUpdate) {
       const diffTime = Math.abs(now.getTime() - lastUpdate.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -135,14 +134,14 @@ export async function POST(req: Request) {
 
     // Award points and update streak for first-time completion only
     await db.update(userProgress).set({
-      points: userProgressData.points + POINTS_PER_LESSON,
+      points: currentUserProgress.points + POINTS_PER_LESSON,
       streak: newStreak,
       lastStreakUpdate: now,
-    }).where(eq(userProgress.userId, session.user.id));
+    }).where(eq(userProgress.userId, user.id));
 
     // Record per-user completion
     await db.insert(userChallengeProgress).values({
-      userId: session.user.id,
+      userId: user.id,
       challengeId,
       isCompleted: true,
       xpAwarded: true,
