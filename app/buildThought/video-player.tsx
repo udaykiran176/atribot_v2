@@ -73,6 +73,10 @@ export function VideoPlayer({ videos, loading, error }: { videos: BuildItThought
             autoPlay
             loop
             muted
+            playsInline
+            preload="metadata"
+            controls={false}
+            webkit-playsinline="true"
             src={currentVideoData.videoUrl}
           >
             Your browser does not support the video tag.
