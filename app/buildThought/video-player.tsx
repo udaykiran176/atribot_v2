@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useBuildThoughtContext } from "./context";
-import { useEffect, useRef } from "react";
+ 
 
 type BuildItThoughtVideo = {
   id: number;
@@ -17,36 +17,12 @@ export function VideoPlayer({ videos, loading, error }: { videos: BuildItThought
   const router = useRouter();
   const { currentVideo } = useBuildThoughtContext();
   const currentVideoData = videos[currentVideo - 1];
-  const videoRef = useRef<HTMLVideoElement>(null);
+  
 
   const handleBackToChallenges = () => {
     router.push("/learn");
   };
-
-  // Force video to play on mobile devices
-  useEffect(() => {
-    if (videoRef.current && currentVideoData) {
-      const video = videoRef.current;
-      
-      const playVideo = async () => {
-        try {
-          // Reset video source to force reload
-          video.load();
-          
-          // Wait a bit for the video to load
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
-          // Attempt to play
-          await video.play();
-        } catch (error) {
-          console.log("Video autoplay failed:", error);
-          // On mobile, user interaction might be required
-        }
-      };
-
-      playVideo();
-    }
-  }, [currentVideoData]);
+  
 
   if (loading) {
     return (
@@ -95,24 +71,12 @@ export function VideoPlayer({ videos, loading, error }: { videos: BuildItThought
         {/* Video Player */}
         <div className="relative aspect-video bg-black">
           <video
-            ref={videoRef}
             key={currentVideoData.id}
             className="w-full h-full"
-            autoPlay
-            loop
-            muted
+            controls
             playsInline
-            preload="auto"
-            controls={false}
-            webkit-playsinline="true"
-            x5-video-player-type="h5"
-            x5-video-player-fullscreen="true"
-            x5-video-orientation="portraint"
-            poster=""
+            preload="metadata"
             src={currentVideoData.videoUrl}
-            onLoadStart={() => console.log('Video load started')}
-            onCanPlay={() => console.log('Video can play')}
-            onError={(e) => console.error('Video error:', e)}
           >
             Your browser does not support the video tag.
           </video>
