@@ -21,10 +21,10 @@ const seed = async () => {
     // Insert courses
     console.log("Seeding courses...");
     const insertedCourses = await db.insert(courses).values([
-      { title: "Build your own circuit", imageSrc: "/course/level-1.png" },
-      { title: "introduction to sensors", imageSrc: "/course/level-2.png" },
-      { title: "wire & wireless bot", imageSrc: "/course/level-3.png" },
-      { title: "step into coding", imageSrc: "/course/level-4.png" },
+      { title: "Build your own circuit", imageSrc: "/course/byoc.png" },
+      { title: "introduction to sensors", imageSrc: "/course/its.png" },
+      { title: "wire & wireless bot", imageSrc: "/course/wab.png" },
+      { title: "step into coding", imageSrc: "/course/sic.png" },
     ]).returning();
     console.log("Courses seeded successfully");
 
@@ -49,7 +49,7 @@ const seed = async () => {
           title: "Basic LED Circuit", 
           description: "Learn the fundamentals of LED circuits", 
           courseId: buildCircuitCourse.id, 
-          imageSrc: "/topic_images/led.png",
+          imageSrc: "/topic_images/led_light.png",
           order: 1 
         },
         { 
@@ -120,35 +120,35 @@ const seed = async () => {
           await db.insert(swipeCards).values([
             {
               challengeId: swipeCardsChallenge.id,
-              image: "/topic_images/LED.png",
+              image: "/topic_images/led_light.png",
               title: "What is an LED?",
               description: "LED stands for Light Emitting Diode. It lights up when current flows forward.",
               order: 1,
             },
             {
               challengeId: swipeCardsChallenge.id,
-              image: "/topic_images/LED.png",
+              image: "/topic_images/led_polarity.png",
               title: "Polarity Matters",
               description: "The longer leg is positive (anode) and the shorter leg is negative (cathode).",
               order: 2,
             },
             {
               challengeId: swipeCardsChallenge.id,
-              image: "/topic_images/LED.png",
+              image: "/topic_images/led_resistor.png",
               title: "Use a Resistor",
               description: "Add a resistor in series to limit current and protect the LED from burning out.",
               order: 3,
             },
             {
               challengeId: swipeCardsChallenge.id,
-              image: "/topic_images/LED.png",
+              image: "/topic_images/led_circuit.png",
               title: "Basic Circuit",
               description: "Connect battery (+) → resistor → LED (anode). LED (cathode) → battery (-).",
               order: 4,
             },
             {
               challengeId: swipeCardsChallenge.id,
-              image: "/topic_images/LED.png",
+              image: "/topic_images/led_safety.png",
               title: "Safety Tip",
               description: "Never connect an LED directly to a battery without a resistor.",
               order: 5,
