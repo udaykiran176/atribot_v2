@@ -13,7 +13,7 @@ export default function Toc({ topics, setRef }: TocProps) {
     <div >
       {topics.map((t, i) => (
         <section 
-          key={t.id}
+          key={`${t.id}-${i}`}
           id={`topic-${t.id}`}
           data-topic-id={t.id}
           ref={setRef(t.id)}

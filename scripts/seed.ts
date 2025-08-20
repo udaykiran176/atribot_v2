@@ -1,7 +1,7 @@
 //seed the database with the courses
 
 import { db } from "@/db/drizzle";
-import { courses, topics, challenges, videoLessons } from "@/db/schema";
+import { courses, topics, challenges, videoLessons, swipeCards, buildItChallenges } from "@/db/schema";
 
 const seed = async () => {
 
@@ -11,6 +11,8 @@ const seed = async () => {
     // Clear existing data
     await Promise.all([
       db.delete(videoLessons),
+      db.delete(swipeCards),
+      db.delete(buildItChallenges),
       db.delete(challenges),
       db.delete(topics),
       db.delete(courses),
@@ -30,9 +32,10 @@ const seed = async () => {
     const challengeTypes = [
       { type: "video_lesson", title: "Video Lesson", order: 1 },
       { type: "swipe_cards", title: "Swipe Cards", order: 2 },
-      { type: "interactive_game", title: "Interactive Game", order: 3 },
-      { type: "build_it_thought", title: "Build It Thought", order: 4 },
-      { type: "quiz", title: "Quiz (MCQ)", order: 5 },
+      { type: "build_it", title: "Build It", order: 3 },
+      { type: "interactive_game", title: "Interactive Game", order: 4 },
+      { type: "build_it_thought", title: "Build It Thought", order: 5 },
+      { type: "quiz", title: "Quiz (MCQ)", order: 6 },
     ];
 
     // Get the "Build your own circuit" course ID
@@ -86,7 +89,14 @@ const seed = async () => {
       // Insert challenges for each topic
       console.log("Seeding challenges for each topic...");
 
-      const challengesData = [];
+      const challengesData = [] as Array<{
+        topicId: number;
+        type: string;
+        title: string;
+        description: string | null;
+        content: string | null;
+        order: number;
+      }>;
       for (const topic of insertedTopics) {
         for (const challengeType of challengeTypes) {
           challengesData.push({
@@ -100,8 +110,89 @@ const seed = async () => {
         }
       }
 
-      await db.insert(challenges).values(challengesData);
+      const insertedChallenges = await db.insert(challenges).values(challengesData).returning();
       console.log("Challenges seeded successfully");
+
+      // Seed swipe cards for "Basic LED Circuit" topic (5 cards)
+      const basicLedTopic = insertedTopics.find(t => t.title === "Basic LED Circuit");
+      if (basicLedTopic) {
+        const swipeCardsChallenge = insertedChallenges.find(c => c.topicId === basicLedTopic.id && c.type === "swipe_cards");
+        if (swipeCardsChallenge) {
+          await db.insert(swipeCards).values([
+            {
+              challengeId: swipeCardsChallenge.id,
+              image: "/topic_images/LED.png",
+              title: "What is an LED?",
+              description: "LED stands for Light Emitting Diode. It lights up when current flows forward.",
+              order: 1,
+            },
+            {
+              challengeId: swipeCardsChallenge.id,
+              image: "/topic_images/LED.png",
+              title: "Polarity Matters",
+              description: "The longer leg is positive (anode) and the shorter leg is negative (cathode).",
+              order: 2,
+            },
+            {
+              challengeId: swipeCardsChallenge.id,
+              image: "/topic_images/LED.png",
+              title: "Use a Resistor",
+              description: "Add a resistor in series to limit current and protect the LED from burning out.",
+              order: 3,
+            },
+            {
+              challengeId: swipeCardsChallenge.id,
+              image: "/topic_images/LED.png",
+              title: "Basic Circuit",
+              description: "Connect battery (+) → resistor → LED (anode). LED (cathode) → battery (-).",
+              order: 4,
+            },
+            {
+              challengeId: swipeCardsChallenge.id,
+              image: "/topic_images/LED.png",
+              title: "Safety Tip",
+              description: "Never connect an LED directly to a battery without a resistor.",
+              order: 5,
+            },
+          ]);
+          console.log("Swipe cards seeded for 'Basic LED Circuit'");
+        }
+
+        // Seed a "Build It" challenge for the same topic
+        const buildItChallenge = insertedChallenges.find(c => c.topicId === basicLedTopic.id && c.type === "build_it");
+        if (buildItChallenge) {
+          await db.insert(buildItChallenges).values([{
+            challengeId: buildItChallenge.id,
+            title: "Build a Simple LED Circuit",
+            description: "Drag and drop components to build a working LED circuit.",
+            initialCode: `
+              <div class="circuit-board">
+                <div class="component battery">Battery</div>
+                <div class="component led">LED</div>
+                <div class="component resistor">Resistor</div>
+              </div>
+              <style>
+                .circuit-board { border: 2px dashed #ccc; padding: 20px; height: 300px; }
+                .component { border: 1px solid #000; padding: 10px; margin: 5px; display: inline-block; }
+              </style>
+            `,
+            solution: `
+              <div class="circuit-board">
+                <div class="component battery connected">Battery</div>
+                <div class="component resistor connected">Resistor</div>
+                <div class="component led connected">LED</div>
+              </div>
+              <style>
+                .circuit-board { border: 2px dashed #ccc; padding: 20px; height: 300px; }
+                .component { border: 1px solid #000; padding: 10px; margin: 5px; display: inline-block; }
+                .connected { border-color: green; }
+              </style>
+            `,
+            order: 1,
+          }]);
+          console.log("Build It challenge seeded for 'Basic LED Circuit'");
+        }
+      }
     }
 
     // Seed Introduction to Robotics course with video lessons

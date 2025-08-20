@@ -56,7 +56,7 @@ export function ChallengeDropdown({
 
   const handleStartChallenge = () => {
     const route = getChallengeRoute(challenge.type);
-    router.push(`${route}?id=${challenge.id}`);
+    router.push(`${route}?challengeId=${challenge.id}`);
     onClose();
   };
 
@@ -93,7 +93,7 @@ export function ChallengeDropdown({
                 buttonVariantClasses[currentVariant as keyof typeof buttonVariantClasses]
               )}
             >
-              Start +10 XP
+              {isCompleted ? 'Review +5 XP' : 'Start +20 XP'}
               {isCompleted && <Check className="h-4 w-4 text-white" />}
             </button>
           </div>

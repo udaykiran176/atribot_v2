@@ -172,7 +172,10 @@ export default function ChallengeButton({
                 onClick={toggleDropdown}
               >
                 {isCompleted ? (
-                  <Check className="h-10 w-10 fill-primary-foreground text-primary-foreground fill-none stroke-[4]" />
+                  <>
+                     <Icon className="w-10 h-10" />
+                     <Check className="absolute w-5 h-5 text-blue-500 bg-white rounded-full top-0 right-0 border-[1px] border-blue-500" />
+                  </>
                 ) : (
                   <Icon className="w-10 h-10" />
                 )}

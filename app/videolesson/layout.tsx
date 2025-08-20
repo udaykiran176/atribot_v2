@@ -1,8 +1,8 @@
 "use client";
 
 import type { PropsWithChildren } from "react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { VideoLessonFooter } from "./footer";
 import { VideoLessonHeader } from "./header";
@@ -15,6 +15,16 @@ const VideoLessonLayout = ({ children }: PropsWithChildren) => {
   const [isLoading, setIsLoading] = useState(false);
   const [challengeId, setChallengeId] = useState<number | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const id = searchParams.get("challengeId");
+    if (id) {
+      setChallengeId(Number(id));
+    } else {
+      setChallengeId(null);
+    }
+  }, [searchParams]);
 
   const progress = totalLessons > 0 ? (currentLesson / totalLessons) * 100 : 0;
 

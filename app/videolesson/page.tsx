@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useVideoLessonContext } from "./context";
@@ -25,19 +25,9 @@ export default function VideoLessonPage({ searchParams }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { setTotalLessons, setCurrentLesson, currentLesson, setChallengeId } = useVideoLessonContext();
-
-  const resolvedSearchParams = use(searchParams);
-  const challengeId = resolvedSearchParams?.id ? parseInt(resolvedSearchParams.id, 10) : null;
+  const { setTotalLessons, setCurrentLesson, currentLesson, challengeId } = useVideoLessonContext();
 
   useEffect(() => {
-    // persist challengeId into context so footer/layout can complete with correct id
-    if (challengeId && !isNaN(challengeId)) {
-      setChallengeId(challengeId);
-    } else {
-      setChallengeId(null);
-    }
-
     async function fetchLessons() {
       if (!challengeId || isNaN(challengeId)) {
         setError("Invalid challenge ID");
@@ -69,8 +59,10 @@ export default function VideoLessonPage({ searchParams }: Props) {
       }
     }
 
-    fetchLessons();
-  }, [challengeId, setTotalLessons, setCurrentLesson, setChallengeId]);
+    if (challengeId) {
+      fetchLessons();
+    }
+  }, [challengeId, setTotalLessons, setCurrentLesson]);
 
   const handleBackToChallenges = () => {
     router.push("/learn");

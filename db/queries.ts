@@ -1,6 +1,6 @@
 import {cache} from "react";
 import {db} from "@/db/drizzle";
-import { courses, userProgress, topics, challenges, videoLessons, userChallengeProgress, user } from "./schema";
+import { courses, userProgress, topics, challenges, videoLessons, userChallengeProgress, user, swipeCards, buildItChallenges } from "./schema";
 import { eq, asc, desc, gt, sql, and } from "drizzle-orm";
 
 type TopicWithChallenges = {
@@ -28,6 +28,61 @@ export const getAllCourses = cache(async () => {
   } catch (error) {
     console.error("Error fetching courses:", error);
     return [];
+  }
+});
+
+// Get swipe cards by challenge ID
+export const getSwipeCardsByChallengeId = cache(async (challengeId: number) => {
+  try {
+    const cards = await db
+      .select()
+      .from(swipeCards)
+      .where(eq(swipeCards.challengeId, challengeId))
+      .orderBy(asc(swipeCards.order));
+    return cards;
+  } catch (error) {
+    console.error("Error fetching swipe cards by challengeId:", error);
+    return [] as Array<{ id: number; challengeId: number; image: string; title: string; description: string | null; order: number }>;
+  }
+});
+
+// Get Build It challenge by challenge ID
+export const getBuildItChallengeById = cache(async (challengeId: number) => {
+  try {
+    const challenge = await db
+      .select()
+      .from(buildItChallenges)
+      .where(eq(buildItChallenges.challengeId, challengeId))
+      .then((rows) => rows[0]); // Assuming one build-it challenge per challengeId
+    return challenge;
+  } catch (error) {
+    console.error("Error fetching Build It challenge by challengeId:", error);
+    return null;
+  }
+});
+
+// Get swipe cards for a given topic title
+export const getSwipeCardsForTopic = cache(async (topicTitle: string) => {
+  try {
+    const rows = await db
+      .select({
+        cardId: swipeCards.id,
+        image: swipeCards.image,
+        title: swipeCards.title,
+        description: swipeCards.description,
+        order: swipeCards.order,
+      })
+      .from(topics)
+      .where(eq(topics.title, topicTitle))
+      .leftJoin(challenges, and(eq(challenges.topicId, topics.id), eq(challenges.type, "swipe_cards")))
+      .leftJoin(swipeCards, eq(swipeCards.challengeId, challenges.id))
+      .orderBy(asc(swipeCards.order));
+
+    // filter out nulls if no swipe cards
+    return rows.filter(r => r.cardId != null);
+  } catch (error) {
+    console.error("Error fetching swipe cards for topic:", error);
+    return [] as Array<{ cardId: number; image: string; title: string; description: string | null; order: number }>;
   }
 });
 

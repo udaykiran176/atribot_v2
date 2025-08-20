@@ -54,7 +54,7 @@ export default function ChallengeList({ challenges, topicIndex, topicImage, topi
             : indentationLevel * -40;
             
           return (
-            <div key={c.id} className="mb-5 w-full">
+            <div key={`${c.id}-${idx}`} className="mb-5 w-full">
               <ChallengeButton
                 challenge={c}
                 index={idx}
