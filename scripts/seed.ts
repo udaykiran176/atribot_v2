@@ -1,7 +1,7 @@
 //seed the database with the courses
 
 import { db } from "@/db/drizzle";
-import { courses, topics, challenges, videoLessons, swipeCards, buildItThought} from "@/db/schema";
+import { courses, topics, challenges, videoLessons, swipeCards, buildItThought, quizzes} from "@/db/schema";
 
 const seed = async () => {
 
@@ -13,6 +13,7 @@ const seed = async () => {
       db.delete(videoLessons),
       db.delete(swipeCards),
       db.delete(buildItThought),
+      db.delete(quizzes),
       db.delete(challenges),
       db.delete(topics),
       db.delete(courses),
@@ -188,6 +189,74 @@ const seed = async () => {
             },
           ]);
           console.log("Build It Thought videos seeded for 'Basic LED Circuit'");
+        }
+
+        // Seed quiz for "Basic LED Circuit" topic (5 questions)
+        const quizChallenge = insertedChallenges.find(c => c.topicId === basicLedTopic.id && c.type === "quiz");
+        if (quizChallenge) {
+          await db.insert(quizzes).values([
+            {
+              challengeId: quizChallenge.id,
+              question: "Which of the following is NOT a feature of LEDs?",
+              options: JSON.stringify([
+                "LEDs are usually very small",
+                "LEDs use high voltage",
+                "LEDs can last for many years",
+                "LEDs come in many colors"
+              ]),
+              correctAnswer: 1,
+              order: 1,
+            },
+            {
+              challengeId: quizChallenge.id,
+              question: "What does LED stand for?",
+              options: JSON.stringify([
+                "Light Emitting Device",
+                "Light Emitting Diode",
+                "Low Energy Device",
+                "Light Electronic Diode"
+              ]),
+              correctAnswer: 1,
+              order: 2,
+            },
+            {
+              challengeId: quizChallenge.id,
+              question: "Which leg of an LED is positive?",
+              options: JSON.stringify([
+                "The shorter leg",
+                "The longer leg",
+                "Both legs are positive",
+                "It doesn't matter"
+              ]),
+              correctAnswer: 1,
+              order: 3,
+            },
+            {
+              challengeId: quizChallenge.id,
+              question: "Why do we use a resistor with an LED?",
+              options: JSON.stringify([
+                "To make it brighter",
+                "To change its color",
+                "To limit current and protect the LED",
+                "To make it blink"
+              ]),
+              correctAnswer: 2,
+              order: 4,
+            },
+            {
+              challengeId: quizChallenge.id,
+              question: "What happens if you connect an LED directly to a battery without a resistor?",
+              options: JSON.stringify([
+                "It will work perfectly",
+                "It will be dimmer",
+                "It may burn out or get damaged",
+                "It will change color"
+              ]),
+              correctAnswer: 2,
+              order: 5,
+            },
+          ]);
+          console.log("Quiz questions seeded for 'Basic LED Circuit'");
         }
       }
     }

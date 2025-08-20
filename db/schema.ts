@@ -132,6 +132,18 @@ export const buildItThought = pgTable("build_it_thought", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const quizzes = pgTable("quizzes", {
+  id: serial("id").primaryKey(),
+  challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
+    onDelete: "cascade",
+  }),
+  question: text("question").notNull(),
+  options: text("options").notNull(), // JSON array of options
+  correctAnswer: integer("correct_answer").notNull(), // Index of correct option
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Then define the relations
 export const videoLessonsRelations = relations(videoLessons, ({ one, many }) => ({
   challenge: one(challenges, {
@@ -144,6 +156,13 @@ export const videoLessonsRelations = relations(videoLessons, ({ one, many }) => 
 export const buildItThoughtRelations = relations(buildItThought, ({ one }) => ({
   challenge: one(challenges, {
     fields: [buildItThought.challengeId],
+    references: [challenges.id],
+  }),
+}));
+
+export const quizzesRelations = relations(quizzes, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [quizzes.challengeId],
     references: [challenges.id],
   }),
 }));
@@ -196,6 +215,7 @@ export const challengesRelations = relations(challenges, ({ one, many }) => ({
   videoLessons: many(videoLessons),
   swipeCards: many(swipeCards),
   buildItThought: many(buildItThought),
+  quizzes: many(quizzes),
 }));
 
 // Per-user challenge progress (tracks completion per user per challenge)
@@ -270,6 +290,7 @@ export const schema = {
   videoLessons,
   swipeCards,
   buildItThought,
+  quizzes,
   userProgress,
   userChallengeProgress,
   userVideoProgress,

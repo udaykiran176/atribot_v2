@@ -1,6 +1,6 @@
 import {cache} from "react";
 import {db} from "@/db/drizzle";
-import { courses, userProgress, topics, challenges, videoLessons, userChallengeProgress, user, swipeCards, buildItThought } from "./schema";
+import { courses, userProgress, topics, challenges, videoLessons, userChallengeProgress, user, swipeCards, buildItThought, quizzes } from "./schema";
 import { eq, asc, desc, gt, sql, and } from "drizzle-orm";
 
 type TopicWithChallenges = {
@@ -58,6 +58,21 @@ export const getBuildItThoughtByChallengeId = cache(async (challengeId: number) 
   } catch (error) {
     console.error("Error fetching build it thought videos by challengeId:", error);
     return [] as Array<{ id: number; challengeId: number; videoUrl: string; order: number; createdAt: Date }>;
+  }
+});
+
+// Get quizzes by challenge ID
+export const getQuizzesByChallengeId = cache(async (challengeId: number) => {
+  try {
+    const quizData = await db
+      .select()
+      .from(quizzes)
+      .where(eq(quizzes.challengeId, challengeId))
+      .orderBy(asc(quizzes.order));
+    return quizData;
+  } catch (error) {
+    console.error("Error fetching quizzes by challengeId:", error);
+    return [] as Array<{ id: number; challengeId: number; question: string; options: string; correctAnswer: number; order: number; createdAt: Date }>;
   }
 });
 
