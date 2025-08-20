@@ -72,6 +72,7 @@ export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   imageSrc: text("image_src").notNull(),
+  order: integer("order").notNull().default(0),
 });
 
 export const topics = pgTable("topics", {
@@ -150,7 +151,6 @@ export const videoLessonsRelations = relations(videoLessons, ({ one, many }) => 
     fields: [videoLessons.challengeId],
     references: [challenges.id],
   }),
-  userProgress: many(userVideoProgress),
 }));
 
 export const buildItThoughtRelations = relations(buildItThought, ({ one }) => ({
@@ -176,7 +176,6 @@ export const coursesRelations = relations(courses, ({ many }) => ({
 
 export const userRelations = relations(user, ({ many }) => ({
   userProgress: many(userProgress),
-  videoProgress: many(userVideoProgress),
   topics: many(topics),
 }));
 
@@ -244,31 +243,6 @@ export const userChallengeProgressRelations = relations(userChallengeProgress, (
   }),
 }));
 
-export const userVideoProgress = pgTable("user_video_progress", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull().references(() => user.id, {
-    onDelete: "cascade",
-  }),
-  videoLessonId: integer("video_lesson_id").notNull().references(() => videoLessons.id, {
-    onDelete: "cascade",
-  }),
-  isCompleted: boolean("is_completed").notNull().default(false),
-  xpAwarded: boolean("xp_awarded").notNull().default(false),
-  completedAt: timestamp("completed_at"),
-  score: integer("score").default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const userVideoProgressRelations = relations(userVideoProgress, ({ one }) => ({
-  user: one(user, {
-    fields: [userVideoProgress.userId],
-    references: [user.id],
-  }),
-  videoLesson: one(videoLessons, {
-    fields: [userVideoProgress.videoLessonId],
-    references: [videoLessons.id],
-  }),
-}));
 
 export const userProgressRelations = relations(userProgress, ({ one }) => ({
   activeCourse: one(courses, {
@@ -293,5 +267,4 @@ export const schema = {
   quizzes,
   userProgress,
   userChallengeProgress,
-  userVideoProgress,
 };

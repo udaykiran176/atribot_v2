@@ -127,6 +127,20 @@
       "when": 1755691032025,
       "tag": "0017_broad_santa_claus",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1755694840755,
+      "tag": "0018_narrow_major_mapleleaf",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1755696200438,
+      "tag": "0019_familiar_plazm",
+      "breakpoints": true
     }
   ]
 }
