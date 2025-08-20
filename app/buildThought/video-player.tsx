@@ -83,18 +83,10 @@ export function VideoPlayer({ videos, loading, error }: { videos: BuildItThought
         <div className="p-4 lg:hidden">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-800">
-              Build Thought Video {currentVideoData.order}
+              Step {currentVideoData.order}
             </h2>
           </div>
-          
-          <div className="mt-4 flex items-center text-sm text-gray-500">
-            <span className="mr-2">🔄</span>
-            <span>This video plays on loop</span>
-          </div>
-          
-          <div className="text-xs text-gray-400 mt-2">
-            Created: {new Date(currentVideoData.createdAt).toLocaleString()}
-          </div>
+        
         </div>
       </div>
     </div>
