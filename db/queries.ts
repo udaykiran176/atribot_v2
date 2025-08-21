@@ -1,6 +1,6 @@
 import {cache} from "react";
 import {db} from "@/db/drizzle";
-import { courses, userProgress, topics, challenges, videoLessons, userChallengeProgress, user, swipeCards, buildItThought, quizzes } from "./schema";
+import { courses, userProgress, topics, challenges, videoLessons, userChallengeProgress, user, swipeCards, buildItThought, quizzes, interactiveGames } from "./schema";
 import { eq, asc, desc, gt, sql, and } from "drizzle-orm";
 
 type TopicWithChallenges = {
@@ -28,6 +28,21 @@ export const getAllCourses = cache(async () => {
   } catch (error) {
     console.error("Error fetching courses:", error);
     return [];
+  }
+});
+
+// Get interactive game by challenge ID (componentPath)
+export const getInteractiveGameByChallengeId = cache(async (challengeId: number) => {
+  try {
+    const rows = await db
+      .select()
+      .from(interactiveGames)
+      .where(eq(interactiveGames.challengeId, challengeId))
+      .limit(1);
+    return rows[0] ?? null as null | { id: number; challengeId: number; componentPath: string; createdAt: Date };
+  } catch (error) {
+    console.error("Error fetching interactive game by challengeId:", error);
+    return null;
   }
 });
 

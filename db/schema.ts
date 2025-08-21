@@ -133,6 +133,17 @@ export const buildItThought = pgTable("build_it_thought", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Each interactive game challenge stores the path to the TSX component under the `games/` directory
+// Example: componentPath = "games/basic_led_circuit" (without extension)
+export const interactiveGames = pgTable("interactive_games", {
+  id: serial("id").primaryKey(),
+  challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
+    onDelete: "cascade",
+  }).unique(),
+  componentPath: text("component_path").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const quizzes = pgTable("quizzes", {
   id: serial("id").primaryKey(),
   challengeId: integer("challenge_id").notNull().references(() => challenges.id, {
@@ -156,6 +167,13 @@ export const videoLessonsRelations = relations(videoLessons, ({ one, many }) => 
 export const buildItThoughtRelations = relations(buildItThought, ({ one }) => ({
   challenge: one(challenges, {
     fields: [buildItThought.challengeId],
+    references: [challenges.id],
+  }),
+}));
+
+export const interactiveGamesRelations = relations(interactiveGames, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [interactiveGames.challengeId],
     references: [challenges.id],
   }),
 }));
@@ -215,6 +233,7 @@ export const challengesRelations = relations(challenges, ({ one, many }) => ({
   swipeCards: many(swipeCards),
   buildItThought: many(buildItThought),
   quizzes: many(quizzes),
+  interactiveGames: many(interactiveGames),
 }));
 
 // Per-user challenge progress (tracks completion per user per challenge)
@@ -264,6 +283,7 @@ export const schema = {
   videoLessons,
   swipeCards,
   buildItThought,
+  interactiveGames,
   quizzes,
   userProgress,
   userChallengeProgress,

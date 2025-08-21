@@ -1,7 +1,7 @@
 //seed the database with the courses
 
 import { db } from "@/db/drizzle";
-import { courses, topics, challenges, videoLessons, swipeCards, buildItThought, quizzes} from "@/db/schema";
+import { courses, topics, challenges, videoLessons, swipeCards, buildItThought, quizzes, interactiveGames } from "@/db/schema";
 
 const seed = async () => {
 
@@ -12,6 +12,7 @@ const seed = async () => {
     await Promise.all([
       db.delete(videoLessons),
       db.delete(swipeCards),
+      db.delete(interactiveGames),
       db.delete(buildItThought),
       db.delete(quizzes),
       db.delete(challenges),
@@ -156,6 +157,18 @@ const seed = async () => {
             },
           ]);
           console.log("Swipe cards seeded for 'Basic LED Circuit'");
+        }
+
+        // Seed interactive game for "Basic LED Circuit"
+        const interactiveGameChallenge = insertedChallenges.find(c => c.topicId === basicLedTopic.id && c.type === "interactive_game");
+        if (interactiveGameChallenge) {
+          await db.insert(interactiveGames).values([
+            {
+              challengeId: interactiveGameChallenge.id,
+              componentPath: "games/basic_led_circuit",
+            },
+          ]);
+          console.log("Interactive game seeded for 'Basic LED Circuit'");
         }
         
         // Seed build_it_thought for "Basic LED Circuit" topic (5 videos)
