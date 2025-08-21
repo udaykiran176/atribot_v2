@@ -91,7 +91,7 @@ function QuizContent() {
   return <QuizDisplay />;
 }
 
-export default function QuizPage() {
+function QuizPageInner() {
   const { challengeId, setChallengeId } = useQuizContext();
   const params = useSearchParams();
 
@@ -106,13 +106,17 @@ export default function QuizPage() {
     }
   }, [params, challengeId, setChallengeId]);
 
+  return <QuizContent />;
+}
+
+export default function QuizPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-screen">
         <div className="text-gray-500 text-xl">Loading quiz...</div>
       </div>
     }>
-      <QuizContent />
+      <QuizPageInner />
     </Suspense>
   );
 }
