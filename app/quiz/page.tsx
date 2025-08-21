@@ -1,14 +1,9 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { QuizDisplay } from "./quiz-display"
 import { useQuizContext, type QuizQuestion } from "./context"
-
-type Props = {
-  searchParams: Promise<{
-    challengeId?: string;
-  }>;
-};
 
 function QuizContent() {
   const [loading, setLoading] = useState(true);
@@ -96,23 +91,20 @@ function QuizContent() {
   return <QuizDisplay />;
 }
 
-export default function QuizPage({ searchParams }: Props) {
+export default function QuizPage() {
   const { challengeId, setChallengeId } = useQuizContext();
+  const params = useSearchParams();
 
   // Set the challenge ID from search params if available
   useEffect(() => {
-    async function handleSearchParams() {
-      const params = await searchParams;
-      if (params?.challengeId && !challengeId) {
-        const id = parseInt(params.challengeId, 10);
-        if (!isNaN(id)) {
-          setChallengeId(id);
-        }
+    const cid = params.get("challengeId");
+    if (cid && !challengeId) {
+      const id = parseInt(cid, 10);
+      if (!isNaN(id)) {
+        setChallengeId(id);
       }
     }
-    
-    handleSearchParams();
-  }, [searchParams, challengeId, setChallengeId]);
+  }, [params, challengeId, setChallengeId]);
 
   return (
     <Suspense fallback={
