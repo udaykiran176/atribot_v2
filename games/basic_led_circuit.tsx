@@ -75,10 +75,10 @@ export default function Experiment1() {
       } else if ((document as any).msFullscreenElement) {
         await (document as any).msExitFullscreen();
       }
-      router.push('/Level-1/1');
+      router.push('/learn');
     } catch (err) {
       console.log('Error exiting fullscreen:', err);
-      router.push('/Level-1/1');
+      router.push('/learn');
     }
   };
 
@@ -855,39 +855,38 @@ export default function Experiment1() {
 
      {/* Control Buttons */}
      <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2">
-       <button
+       <Button
          onClick={handleBack}
-         className="px-2 py-1.5 text-sm duolingo-button duolingo-blue flex items-center gap-1"
+        
        >
          <FaArrowLeft className="mr-1 text-base" /> Back
-       </button>
+       </Button>
    
        {!isSimulationMode && (connections.length > 0 || batteryX !== 700) && (
-         <button
+         <Button
            onClick={handleReset}
-           className="px-2 py-1.5 text-sm duolingo-button duolingo-red flex items-center gap-1"
          >
            <FaUndo className="mr-1 text-base" /> Reset
-         </button>
+         </Button>
        )}
    
-       <button
+       <Button
          onClick={() => {
            setShowHelp(!showHelp);
            setShowHelpHighlight(false);
          }}
-         className={`px-2 py-1.5 text-sm duolingo-button duolingo-green flex items-center gap-1 ${showHelpHighlight ? 'animate-pulse' : ''}`}
+         variant='secondary'
        >
          <FaQuestionCircle className="mr-1 text-base" /> Help
-       </button>
+       </Button>
    
        {isSimulationMode && (
-         <button
+         <Button
            onClick={handleExitSimulation}
-           className="px-2 py-1.5 text-sm duolingo-button duolingo-purple flex items-center gap-1"
+           variant='secondary'
          >
            <MdExitToApp className="mr-1 text-base" /> Exit
-         </button>
+         </Button>
        )}
      </div>
 
@@ -956,7 +955,7 @@ export default function Experiment1() {
        <div className="absolute bottom-4 right-4 z-20 flex flex-col items-center gap-3">
          <Button
            onClick={handleComplete}
-           className="px-6 py-4 text-white text-lg font-bold rounded-2xl shadow-lg transition-all bg-[#58CC02] hover:bg-[#46a302]"
+           variant='secondary'
          >
            Complete
          </Button>
