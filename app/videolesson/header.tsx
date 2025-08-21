@@ -1,6 +1,7 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, Maximize2, Minimize2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useExitModal } from "@/store/use-exit-modal";
 
 type Props = {
@@ -11,6 +12,27 @@ type Props = {
 
 export function VideoLessonHeader({ progress, currentLesson, totalLessons }: Props) {
   const { open } = useExitModal();
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFsChange);
+    return () => document.removeEventListener("fullscreenchange", handleFsChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      }
+    } catch (e) {
+      console.error("Fullscreen toggle failed", e);
+    }
+  };
 
   const handleClose = () => {
     open();
@@ -39,9 +61,25 @@ export function VideoLessonHeader({ progress, currentLesson, totalLessons }: Pro
            
           </div>
         </div>
-        <div className="text-xs font-medium text-gray-600">
-               <p>Video <span className="font-semibold">{currentLesson}</span>/{totalLessons}</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleFullscreen}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          >
+            {isFullscreen ? (
+              <Minimize2 className="w-5 h-5 text-gray-600" />
+            ) : (
+              <Maximize2 className="w-5 h-5 text-gray-600" />
+            )}
+          </button>
+          <div className="text-xs font-medium text-gray-600">
+            <p>
+              Video <span className="font-semibold">{currentLesson}</span>/{totalLessons}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

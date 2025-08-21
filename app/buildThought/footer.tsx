@@ -1,48 +1,33 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useBuildThoughtContext } from "./context";
-
 type Props = {
   onPrevious: () => void;
   onNext: () => void;
   canGoPrevious: boolean;
   canGoNext: boolean;
   isLastVideo: boolean;
+  isLoading?: boolean;
 };
 
-export function BuildThoughtFooter({
-  onPrevious,
-  onNext,
-  canGoPrevious,
-  canGoNext,
-  isLastVideo,
-}: Props) {
-  const { hasVideos } = useBuildThoughtContext();
-
+export function BuildThoughtFooter({ onPrevious, onNext, canGoPrevious, canGoNext, isLastVideo, isLoading }: Props) {
   return (
-    <div className="bg-white border-t border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
-        {/* Previous Button */}
-        <Button
+    <div className="bg-white border-t border-gray-200 px-4 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <button
           onClick={onPrevious}
-          disabled={!canGoPrevious || !hasVideos}
-          variant="outline"
+          disabled={!canGoPrevious}
+          className="px-4 py-2 rounded-md bg-gray-100 text-gray-700 disabled:opacity-50"
         >
-          <ChevronLeft className="w-5 h-5" />
-          <span>Previous</span>
-        </Button>
+          Previous
+        </button>
 
-        {/* Next Button */}
-        <Button
+        <button
           onClick={onNext}
-          disabled={!canGoNext || !hasVideos}
-          variant={isLastVideo ? "primary" : "primary"}
+          disabled={!canGoNext || isLoading}
+          className={`px-4 py-2 rounded-md ${isLastVideo ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'} text-white disabled:opacity-50`}
         >
-          <span>{isLastVideo ? "Complete" : "Next"}</span>
-          {!isLastVideo && <ChevronRight className="w-5 h-5" />}
-        </Button>
+          {isLastVideo ? 'Complete' : 'Next'}
+        </button>
       </div>
     </div>
   );

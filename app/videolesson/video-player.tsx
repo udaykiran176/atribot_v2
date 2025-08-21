@@ -80,7 +80,7 @@ export function VideoPlayer({ lessons, loading, error }: { lessons: Lesson[]; lo
         </div>
         
         {/* Video Info */}
-        <div className="p-4 lg:hidden">
+        <div className="p-4 ">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-800">
               {currentLessonData.title}

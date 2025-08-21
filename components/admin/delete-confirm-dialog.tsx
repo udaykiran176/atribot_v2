@@ -35,8 +35,8 @@ export function DeleteConfirmDialog({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Delete
+          <Button variant="danger" onClick={onConfirm}>
+              Delete
           </Button>
         </div>
       </DialogContent>

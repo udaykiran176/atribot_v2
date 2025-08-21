@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { BuildThoughtFooter } from "./footer";
 import { BuildThoughtHeader } from "./header";
 import { ExitModal } from "@/components/modals/exit-modal";
-import { BuildThoughtContext, type BuildThoughtContextType } from "./context";
+import { BuildThoughtContext } from "./context";
 
 function BuildThoughtContent({ children }: PropsWithChildren) {
   const [currentVideo, setCurrentVideo] = useState(1);
@@ -19,50 +19,52 @@ function BuildThoughtContent({ children }: PropsWithChildren) {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const id = searchParams.get("challengeId");
-    if (id) {
-      setChallengeId(Number(id));
-    } else {
-      setChallengeId(null);
-    }
+    const id = searchParams.get("challengeId") || searchParams.get("id");
+    if (id) setChallengeId(Number(id)); else setChallengeId(null);
   }, [searchParams]);
+
+  // Auto-enter fullscreen on load
+  useEffect(() => {
+    const enterFullscreen = async () => {
+      try {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (e) {
+        console.warn("Auto fullscreen request (BuildThought) was blocked or failed", e);
+      }
+    };
+    enterFullscreen();
+  }, []);
 
   const progress = totalVideos > 0 ? (currentVideo / totalVideos) * 100 : 0;
 
   const handlePrevious = () => {
-    if (currentVideo > 1) {
-      setCurrentVideo(currentVideo - 1);
-    }
+    if (currentVideo > 1) setCurrentVideo(currentVideo - 1);
   };
 
   const handleNext = async () => {
     if (isLoading) return;
-
     if (currentVideo < totalVideos) {
       setCurrentVideo(currentVideo + 1);
     } else if (currentVideo === totalVideos) {
       if (!challengeId) {
-        console.error('Cannot complete build thought: missing challengeId from context. Ensure /buildThought?challengeId=<challengeId> is used.');
+        console.error('Cannot complete: missing challengeId. Ensure /buildThought?challengeId=<id> is used.');
         setIsLoading(false);
         return;
       }
       setIsLoading(true);
       try {
-        const response = await fetch('/api/challenge-complete', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ challengeId }),
+        const r = await fetch('/api/challenge-complete', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ challengeId })
         });
-
-        if (response.ok) {
-          router.push('/completed');
-        } else {
-          const msg = await response.text().catch(() => '');
-          console.error("Failed to update progress", msg);
-          // TODO: Show an error toast to the user
-        }
-      } catch (error) {
-        console.error("Error completing build thought:", error);
+        if (!r.ok) console.error('Failed to mark challenge complete');
+        // Award 20 XP via completed page
+        const params = new URLSearchParams({ xp: '20', challengeId: String(challengeId) });
+        router.push(`/completed?${params.toString()}`);
+      } catch (e) {
+        console.error('Error completing BuildThought:', e);
       } finally {
         setIsLoading(false);
       }
@@ -83,24 +85,16 @@ function BuildThoughtContent({ children }: PropsWithChildren) {
   return (
     <BuildThoughtContext.Provider value={contextValue}>
       <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-        <BuildThoughtHeader
-          progress={progress}
-          currentVideo={currentVideo}
-          totalVideos={totalVideos}
-        />
-
-        <div className="flex-1 overflow-hidden">
-          {children}
-        </div>
-
+        <BuildThoughtHeader progress={progress} currentVideo={currentVideo} totalVideos={totalVideos} />
+        <div className="flex-1 overflow-hidden">{children}</div>
         <BuildThoughtFooter
           onPrevious={handlePrevious}
           onNext={handleNext}
           canGoPrevious={currentVideo > 1}
           canGoNext={currentVideo < totalVideos || (currentVideo === totalVideos && !isLoading)}
           isLastVideo={currentVideo === totalVideos}
+          isLoading={isLoading}
         />
-
         <ExitModal />
       </div>
     </BuildThoughtContext.Provider>
@@ -109,11 +103,7 @@ function BuildThoughtContent({ children }: PropsWithChildren) {
 
 const BuildThoughtLayout = ({ children }: PropsWithChildren) => {
   return (
-    <Suspense fallback={
-      <div className="h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
-      </div>
-    }>
+    <Suspense fallback={<div className="h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-500">Loading...</div></div>}>
       <BuildThoughtContent>{children}</BuildThoughtContent>
     </Suspense>
   );

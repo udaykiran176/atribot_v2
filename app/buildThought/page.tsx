@@ -1,99 +1,70 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
-import { VideoPlayer } from "./video-player";
-import { useBuildThoughtContext } from "./context";
+import { BuildThoughtPlayer, type VideoItem } from "./video-player";
+import { useContext } from "react";
+import { BuildThoughtContext } from "./context";
 
-type Props = {
-  searchParams: Promise<{
-    id?: string;
-  }>;
-};
+type Props = { searchParams: Promise<{ id?: string }>; };
 
-type BuildItThoughtVideo = {
-  id: number;
-  challengeId: number;
-  videoUrl: string;
-  order: number;
-  createdAt: Date;
-};
-
-function BuildThoughtContent() {
-  const [videos, setVideos] = useState<BuildItThoughtVideo[]>([]);
+function BuildThoughtDataLoader() {
+  const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { setTotalVideos, setCurrentVideo, challengeId, setHasVideos } = useBuildThoughtContext();
+  const ctx = useContext(BuildThoughtContext);
 
   useEffect(() => {
     async function fetchVideos() {
-      if (!challengeId || isNaN(challengeId)) {
+      if (!ctx?.challengeId || isNaN(ctx.challengeId)) {
         setError("Invalid challenge ID");
         setLoading(false);
         return;
       }
-
       try {
-        const response = await fetch(`/api/build-it-thought?challengeId=${challengeId}`);
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch videos");
-        }
-        
-        const fetchedVideos = await response.json();
-        setVideos(fetchedVideos || []);
-        
-        // Update the layout context with actual video count
-        if (fetchedVideos && fetchedVideos.length > 0) {
-          setTotalVideos(fetchedVideos.length);
-          setCurrentVideo(1);
-          setHasVideos(true);
+        const res = await fetch(`/api/build-it-thought?challengeId=${ctx.challengeId}`);
+        if (!res.ok) throw new Error('Failed to fetch videos');
+        const data = await res.json();
+        setVideos(data || []);
+        if (data && data.length > 0) {
+          ctx.setTotalVideos(data.length);
+          ctx.setCurrentVideo(1);
+          ctx.setHasVideos(true);
         } else {
-          setHasVideos(false);
+          ctx.setHasVideos(false);
         }
-      } catch (error) {
-        console.error("Error fetching build it thought videos:", error);
-        setError("Failed to load build it thought videos");
+      } catch (e) {
+        console.error('Error fetching BuildThought videos:', e);
+        setError('Failed to load videos');
         setVideos([]);
-        setHasVideos(false);
+        ctx?.setHasVideos(false);
       } finally {
         setLoading(false);
       }
     }
+    if (ctx?.challengeId) fetchVideos();
+  }, [ctx?.challengeId]);
 
-    if (challengeId) {
-      fetchVideos();
-    }
-  }, [challengeId, setTotalVideos, setCurrentVideo]);
-
-  return <VideoPlayer videos={videos} loading={loading} error={error} />;
+  return <BuildThoughtPlayer videos={videos} loading={loading} error={error} />;
 }
 
 export default function BuildThoughtPage({ searchParams }: Props) {
-  const { challengeId, setChallengeId } = useBuildThoughtContext();
+  const ctx = useContext(BuildThoughtContext);
 
-  // Set the challenge ID from search params if available
   useEffect(() => {
-    async function handleSearchParams() {
+    async function setId() {
       const params = await searchParams;
-      if (params?.id && !challengeId) {
+      if (params?.id && !ctx?.challengeId) {
         const id = parseInt(params.id, 10);
-        if (!isNaN(id)) {
-          setChallengeId(id);
-        }
+        if (!isNaN(id)) ctx?.setChallengeId(id);
       }
     }
-    
-    handleSearchParams();
-  }, [searchParams, challengeId, setChallengeId]);
+    setId();
+  }, [searchParams, ctx?.challengeId]);
 
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500">Loading build thought videos...</div>
-      </div>
-    }>
+    <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="text-gray-500">Loading build-it-thought...</div></div>}>
       <div className="flex items-center justify-center lg:h-full">
-        <BuildThoughtContent />
+        <BuildThoughtDataLoader />
       </div>
     </Suspense>
   );

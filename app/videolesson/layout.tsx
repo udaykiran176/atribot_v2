@@ -27,6 +27,20 @@ function VideoLessonContent({ children }: PropsWithChildren) {
     }
   }, [searchParams]);
 
+  // Attempt to enter fullscreen automatically when the page loads
+  useEffect(() => {
+    const enterFullscreen = async () => {
+      try {
+        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (e) {
+        console.warn("Auto fullscreen request was blocked or failed", e);
+      }
+    };
+    enterFullscreen();
+  }, []);
+
   const progress = totalLessons > 0 ? (currentLesson / totalLessons) * 100 : 0;
 
   const handlePrevious = () => {

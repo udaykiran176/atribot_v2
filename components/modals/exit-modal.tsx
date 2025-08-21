@@ -62,9 +62,17 @@ export const ExitModal = () => {
               variant="dangerOutline"
               className="w-full"
               size="lg"
-              onClick={() => {
+              onClick={async () => {
                 close();
-                router.push("/learn");
+                try {
+                  if (document.fullscreenElement && document.exitFullscreen) {
+                    await document.exitFullscreen();
+                  }
+                } catch (e) {
+                  console.warn("Exiting fullscreen failed", e);
+                } finally {
+                  router.push("/learn");
+                }
               }}
             >
               End session

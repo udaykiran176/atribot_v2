@@ -5,10 +5,11 @@ import { eq } from "drizzle-orm";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const topicId = parseInt(params.id);
+    const { id } = await params;
+    const topicId = parseInt(id);
     const topic = await db
       .select()
       .from(topics)
@@ -34,10 +35,11 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const topicId = parseInt(params.id);
+    const { id } = await params;
+    const topicId = parseInt(id);
     const body = await request.json();
     const { title, description, courseId, imageSrc, order } = body;
 
@@ -79,10 +81,11 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const topicId = parseInt(params.id);
+    const { id } = await params;
+    const topicId = parseInt(id);
     
     const [deletedTopic] = await db
       .delete(topics)

@@ -1,109 +1,56 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { useBuildThoughtContext } from "./context";
-import { useMemo } from "react";
- 
 
-type BuildItThoughtVideo = {
+export type VideoItem = {
   id: number;
-  challengeId: number;
   videoUrl: string;
-  order: number;
-  createdAt: Date;
+  order?: number;
 };
 
-export function VideoPlayer({ videos, loading, error }: { videos: BuildItThoughtVideo[]; loading: boolean; error: string | null }) {
-  const router = useRouter();
+type Props = {
+  videos: VideoItem[];
+  loading: boolean;
+  error: string | null;
+};
+
+export function BuildThoughtPlayer({ videos, loading, error }: Props) {
   const { currentVideo } = useBuildThoughtContext();
-  const currentVideoData = videos[currentVideo - 1];
-  const safeSrc = useMemo(() => {
-    const url = currentVideoData?.videoUrl ?? "";
-    try {
-      // encodeURI preserves valid URL parts but encodes spaces and other unsafe chars
-      return encodeURI(url);
-    } catch {
-      return url;
-    }
-  }, [currentVideoData?.videoUrl]);
-  
 
-  const handleBackToChallenges = () => {
-    router.push("/learn");
-  };
-  
+  if (loading) return (
+    <div className="h-full flex items-center justify-center">
+      <div className="text-gray-500">Loading videos...</div>
+    </div>
+  );
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center">
-        <div className="text-gray-500">Loading build thought videos...</div>
-      </div>
-    );
-  }
+  if (error) return (
+    <div className="h-full flex items-center justify-center">
+      <div className="text-red-500">{error}</div>
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full space-y-4">
-        <p className="text-gray-500">{error}</p>
-        <Button onClick={handleBackToChallenges} variant="outline">
-          Back to Challenges
-        </Button>
-      </div>
-    );
-  }
+  if (!videos || videos.length === 0) return (
+    <div className="h-full flex items-center justify-center">
+      <div className="text-gray-500">No videos available.</div>
+    </div>
+  );
 
-  if (videos.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full space-y-4">
-        <h2 className="text-xl font-semibold text-gray-700">No Build Thought Videos Available</h2>
-        <p className="text-gray-500 text-center max-w-md">
-          There are no build thought videos available for this challenge yet.
-        </p>
-        <Button onClick={handleBackToChallenges} variant="outline">
-          Back to Challenges
-        </Button>
-      </div>
-    );
-  }
-
-  if (!currentVideoData) {
-    return (
-      <div className="text-center text-gray-500">
-        No build thought video available
-      </div>
-    );
-  }
+  const current = videos[currentVideo - 1];
 
   return (
-    <div className="w-full max-w-4xl">
-      <div>
-        {/* Video Player */}
-        <div className="relative aspect-video bg-black">
-          <video
-            key={currentVideoData.id}
-            className="w-full h-full"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-          >
-            <source src={safeSrc} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        
-        {/* Video Info */}
-        <div className="p-4 lg:hidden">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">
-              Step {currentVideoData.order}
-            </h2>
-          </div>
-        
-        </div>
-      </div>
+    <div className="w-full h-full bg-white flex items-center justify-center">
+      <video
+        key={current?.id}
+        className="w-full h-full object-contain bg-black"
+        src={current?.videoUrl}
+        autoPlay
+        muted
+        loop
+        controls
+        playsInline
+      >
+        Your browser does not support the video tag.
+      </video>
     </div>
   );
 }
