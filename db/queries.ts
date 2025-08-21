@@ -270,3 +270,28 @@ export const getUserRank = cache(async (userId: string) => {
     return null;
   }
 });
+
+// Mark challenge as completed for a user
+export const markChallengeCompleted = async (userId: string, challengeId: number) => {
+  try {
+    await db
+      .insert(userChallengeProgress)
+      .values({
+        userId,
+        challengeId,
+        isCompleted: true,
+        completedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: [userChallengeProgress.userId, userChallengeProgress.challengeId],
+        set: {
+          isCompleted: true,
+          completedAt: new Date(),
+        },
+      });
+    return true;
+  } catch (error) {
+    console.error("Error marking challenge as completed:", error);
+    return false;
+  }
+};

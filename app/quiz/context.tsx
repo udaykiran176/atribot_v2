@@ -1,43 +1,88 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 
-export type QuizQuestion = {
+export interface QuizQuestion {
   id: number;
   challengeId: number;
   question: string;
-  options: string[];
+  options: string | string[];
   correctAnswer: number;
   order: number;
   createdAt: Date;
-};
+}
 
-export type QuizContextType = {
-  currentQuestion: number;
-  totalQuestions: number;
-  setCurrentQuestion: (question: number) => void;
-  setTotalQuestions: (total: number) => void;
+interface QuizContextType {
   challengeId: number | null;
-  setChallengeId: (id: number | null) => void;
+  setChallengeId: (id: number) => void;
+  currentQuestion: number;
+  setCurrentQuestion: (question: number) => void;
+  totalQuestions: number;
+  setTotalQuestions: (total: number) => void;
   questions: QuizQuestion[];
   setQuestions: (questions: QuizQuestion[]) => void;
   hasQuestions: boolean;
   setHasQuestions: (has: boolean) => void;
-  score: number;
-  setScore: (score: number) => void;
-  answers: Record<number, number>;
-  setAnswers: (answers: Record<number, number>) => void;
-  selectedAnswer: number | null;
-  setSelectedAnswer: (answer: number | null) => void;
-};
+  answers: number[];
+  setAnswers: (answers: number[]) => void;
+  showResults: boolean;
+  setShowResults: (show: boolean) => void;
+  showStartScreen: boolean;
+  setShowStartScreen: (show: boolean) => void;
+  timeRemaining: number;
+  setTimeRemaining: (time: number) => void;
+  showReview: boolean;
+  setShowReview: (show: boolean) => void;
+}
 
-export const QuizContext = createContext<QuizContextType | null>(null);
+const QuizContext = createContext<QuizContextType | undefined>(undefined);
 
-export const useQuizContext = () => {
+export function QuizProvider({ children }: { children: ReactNode }) {
+  const [challengeId, setChallengeId] = useState<number | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState(1);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [hasQuestions, setHasQuestions] = useState(false);
+  const [answers, setAnswers] = useState<number[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [showStartScreen, setShowStartScreen] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes
+  const [showReview, setShowReview] = useState(false);
+
+  return (
+    <QuizContext.Provider
+      value={{
+        challengeId,
+        setChallengeId,
+        currentQuestion,
+        setCurrentQuestion,
+        totalQuestions,
+        setTotalQuestions,
+        questions,
+        setQuestions,
+        hasQuestions,
+        setHasQuestions,
+        answers,
+        setAnswers,
+        showResults,
+        setShowResults,
+        showStartScreen,
+        setShowStartScreen,
+        timeRemaining,
+        setTimeRemaining,
+        showReview,
+        setShowReview,
+      }}
+    >
+      {children}
+    </QuizContext.Provider>
+  );
+}
+
+export function useQuizContext() {
   const context = useContext(QuizContext);
-  if (!context) {
-    throw new Error("useQuizContext must be used within QuizContext.Provider");
+  if (context === undefined) {
+    throw new Error("useQuizContext must be used within a QuizProvider");
   }
   return context;
-};
-
+}

@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
-import { QuizDisplay } from "./quiz-display";
-import { useQuizContext, type QuizQuestion } from "./context";
+import { QuizDisplay } from "./quiz-display"
+import { useQuizContext, type QuizQuestion } from "./context"
 
 type Props = {
   searchParams: Promise<{
@@ -18,7 +18,8 @@ function QuizContent() {
     setCurrentQuestion, 
     challengeId, 
     setQuestions, 
-    setHasQuestions 
+    setHasQuestions,
+    setAnswers
   } = useQuizContext();
 
   useEffect(() => {
@@ -52,8 +53,9 @@ function QuizContent() {
         
         setQuestions(parsedQuestions || []);
         
-        // Update the layout context with actual question count
+        // Initialize answers array
         if (parsedQuestions && parsedQuestions.length > 0) {
+          setAnswers(new Array(parsedQuestions.length).fill(-1));
           setTotalQuestions(parsedQuestions.length);
           setCurrentQuestion(1);
           setHasQuestions(true);
@@ -73,20 +75,20 @@ function QuizContent() {
     if (challengeId) {
       fetchQuestions();
     }
-  }, [challengeId, setTotalQuestions, setCurrentQuestion, setQuestions, setHasQuestions]);
+  }, [challengeId, setTotalQuestions, setCurrentQuestion, setQuestions, setHasQuestions, setAnswers]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500">Loading quiz questions...</div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-gray-500 text-xl">Loading quiz questions...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-red-500">{error}</div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-500 text-xl">{error}</div>
       </div>
     );
   }
@@ -114,13 +116,11 @@ export default function QuizPage({ searchParams }: Props) {
 
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500">Loading quiz...</div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-gray-500 text-xl">Loading quiz...</div>
       </div>
     }>
-      <div className="flex items-center justify-center lg:h-full">
-        <QuizContent />
-      </div>
+      <QuizContent />
     </Suspense>
   );
 }
