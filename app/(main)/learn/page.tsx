@@ -5,6 +5,9 @@ import { headers } from "next/headers";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { UserProgress } from "@/components/user-progress";
+import { KitAds } from "@/components/kit-ads";
+import { StreakCalendar } from "@/components/streak-calendar";
+import { DailyQuests } from "@/components/daily-quests";
 import LearnClient from "./learn-client";
 import { CertificateCard } from "./certificate-card";
 import RedirectTo from "@/components/redirect-to";
@@ -36,6 +39,19 @@ export default async function LearnPage() {
           points={userProgress.points}
           // hasActiveSubscription={isPro}
         />
+        {/*kit ads*/}
+        <KitAds activeCourse={userProgress.activeCourse} />
+        {/*streak calendar*/}
+        <StreakCalendar 
+          streak={userProgress.streak} 
+          lastStreakUpdate={userProgress.lastStreakUpdate}
+        />
+        {/* quests Daily Quests */}
+        <DailyQuests 
+          points={userProgress.points}
+          streak={userProgress.streak}
+        />
+   
       </StickyWrapper>
       <FeedWrapper>
         <LearnClient courseTitle={userProgress.activeCourse.title} topics={toc as any} />

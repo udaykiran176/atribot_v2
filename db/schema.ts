@@ -73,6 +73,12 @@ export const courses = pgTable("courses", {
   title: text("title").notNull(),
   imageSrc: text("image_src").notNull(),
   order: integer("order").notNull().default(0),
+  // Kit information
+  kitTitle: text("kit_title"),
+  kitDescription: text("kit_description"),
+  kitPrice: text("kit_price"),
+  kitImage: text("kit_image"),
+  kitFeatures: text("kit_features"), // JSON array of features
 });
 
 export const topics = pgTable("topics", {

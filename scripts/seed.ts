@@ -23,10 +23,42 @@ const seed = async () => {
     // Insert courses
     console.log("Seeding courses...");
     const insertedCourses = await db.insert(courses).values([
-      { title: "Build your own circuit", imageSrc: "/course/byoc.png" },
-      { title: "introduction to sensors", imageSrc: "/course/its.png" },
-      { title: "wire & wireless bot", imageSrc: "/course/wab.png" },
-      { title: "step into coding", imageSrc: "/course/sic.png" },
+      { 
+        title: "Build your own circuit", 
+        imageSrc: "/course/byoc.png",
+        kitTitle: "Circuit Building Kit",
+        kitDescription: "Complete kit with breadboard, LEDs, resistors, and components for circuit projects",
+        kitPrice: "$49.99",
+        kitImage: "/kit-circuit.png",
+        kitFeatures: JSON.stringify(["Breadboard", "LEDs Pack", "Resistors", "Jumper Wires", "Battery Pack"])
+      },
+      { 
+        title: "introduction to sensors", 
+        imageSrc: "/course/its.png",
+        kitTitle: "Sensors Starter Kit",
+        kitDescription: "Essential sensors pack including IR, LDR, fire, soil, and water level sensors",
+        kitPrice: "$79.99",
+        kitImage: "/kit-sensors.png",
+        kitFeatures: JSON.stringify(["IR Sensor", "LDR Sensor", "Fire Sensor", "Soil Sensor", "Water Level Sensor"])
+      },
+      { 
+        title: "wire & wireless bot", 
+        imageSrc: "/course/wab.png",
+        kitTitle: "Robotics Bot Kit",
+        kitDescription: "Build and program your own wired and wireless robots with this comprehensive kit",
+        kitPrice: "$149.99",
+        kitImage: "/kit-robotics.png",
+        kitFeatures: JSON.stringify(["Robot Chassis", "Motors", "Wireless Module", "Controller", "Sensors Pack"])
+      },
+      { 
+        title: "step into coding", 
+        imageSrc: "/course/sic.png",
+        kitTitle: "Coding Starter Kit",
+        kitDescription: "Everything you need to start your coding journey with microcontrollers",
+        kitPrice: "$89.99",
+        kitImage: "/kit-coding.png",
+        kitFeatures: JSON.stringify(["Arduino Board", "USB Cable", "Coding Guide", "Sample Projects", "Component Pack"])
+      },
     ]).returning();
     console.log("Courses seeded successfully");
 

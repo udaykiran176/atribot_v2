@@ -20,6 +20,58 @@ type TopicWithChallenges = {
   }>;
 };
 
+// Get user by ID with all fields
+export const getUserById = cache(async (userId: string) => {
+  try {
+    const userData = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId))
+      .then(rows => rows[0]);
+    return userData || null;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return null;
+  }
+});
+
+// Calculate course completion percentage for a user
+export const getCourseCompletionPercentage = cache(async (userId: string, courseId: number) => {
+  try {
+    // Get total challenges in the course
+    const totalChallenges = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(challenges)
+      .leftJoin(topics, eq(topics.id, challenges.topicId))
+      .where(eq(topics.courseId, courseId))
+      .then(r => r[0]?.count ?? 0);
+
+    if (totalChallenges === 0) return 0;
+
+    // Get completed challenges for the user in this course
+    const completedChallenges = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(userChallengeProgress)
+      .leftJoin(challenges, eq(challenges.id, userChallengeProgress.challengeId))
+      .leftJoin(topics, eq(topics.id, challenges.topicId))
+      .where(
+        and(
+          eq(userChallengeProgress.userId, userId),
+          eq(userChallengeProgress.isCompleted, true),
+          eq(topics.courseId, courseId)
+        )
+      )
+      .then(r => r[0]?.count ?? 0);
+
+    // Calculate percentage
+    const percentage = Math.round((completedChallenges / totalChallenges) * 100);
+    return percentage;
+  } catch (error) {
+    console.error("Error calculating course completion:", error);
+    return 0;
+  }
+});
+
 // Get all courses with React cache for deduplication
 export const getAllCourses = cache(async () => {
   try {
